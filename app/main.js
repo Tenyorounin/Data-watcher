@@ -8,26 +8,46 @@ function cleanText(value) {
 function parseCardText(rawText) {
   const text = cleanText(rawText);
 
-  const titleMatch = text.match(/\b(20\d{2}\s+[A-Z0-9][A-Z0-9\s\-\.\/]*?)(?=\s+VIN\s*#:|\s+Stock\s*#:|\s+Damage|\s+\d+\s*Km|\s+Transmission:|\s+Engine:|\s+Lane:|\s+Location:|\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|\s+Closing Date:|\s+Buy Now:|\s+Prebid available|$)/i);
+  const titleMatch = text.match(
+    /\b(20\d{2}\s+[A-Z0-9][A-Z0-9\s\-\.\/]*?)(?=\s+VIN\s*#:|\s+Stock\s*#:|\s+Damage|\s+\d+\s*Km|\s+Transmission:|\s+Auto Stationary|\s+Engine:|\s+Lane:|\s+Location:|\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|\s+Closing Date:|\s+Buy Now:|\s+High Pre-Bid:|\s+Prebid available|$)/i
+  );
+
   const vinMatch = text.match(/VIN\s*#:\s*([A-Z0-9*]+)/i);
   const stockMatch = text.match(/Stock\s*#:\s*([A-Z0-9-]+)/i);
   const dateMatch = text.match(/\b(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),\s+[A-Za-z]{3}\s+\d{2},\s+\d{2}:\d{2}\s+(?:AM|PM)\s+[A-Z]{2,4}\b/);
   const closingDateMatch = text.match(/Closing Date:\s*([A-Za-z]{3},\s+[A-Za-z]{3}\s+\d{2},\s+\d{4})/i);
   const laneRunMatch = text.match(/Lane:\s*([^\s]+)\s+Run:\s*([^\s]+)/i);
-  const locationMatch = text.match(/Location:\s*([^$]+?)(?=Prebid available|Starts|High Pre-Bid:|Current Bid:|Buy Now:|Closing Date:|$)/i);
+
+  const locationMatch = text.match(
+    /Location:\s*(.+?)(?=\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|\s+Closing Date:|\s+High Pre-Bid:|\s+Current Bid:|\s+Buy Now:|\s+Prebid available|$)/i
+  );
+
   const highPreBidMatch = text.match(/High Pre-Bid:\s*\$([0-9,]+\.\d{2})/i);
   const currentBidMatch = text.match(/Current Bid:\s*\$([0-9,]+\.\d{2})/i);
   const buyNowMatch = text.match(/Buy Now:\s*\$([0-9,]+\.\d{2})/i);
-  const engineMatch = text.match(/Engine:\s*([^$]+?)(?=Location:|Lane:|Run:|(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|Closing Date:|Buy Now:|Prebid available|$)/i);
   const odometerMatch = text.match(/\b(\d{1,3}(?:,\d{3})*|\d+)\s*Km\b/i);
   const damageEstimateMatch = text.match(/Damage Estimate:\s*\$([0-9,]+\.\d{2})/i);
 
+  // Engine should stop before the city/location chunk.
+  const engineMatch = text.match(
+    /Engine:\s*(.+?)(?=\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+Lane:|\s+Lane:|\s+Location:|\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|\s+Closing Date:|\s+Prebid available|$)/i
+  );
+
+  // City is usually the text after engine/transmission and before Lane: or Location:
   let city = '';
-  if (engineMatch) {
-    const tail = cleanText(engineMatch[1]);
-    const pieces = tail.split(/\s+/);
-    if (pieces.length > 1) {
-      city = tail;
+  const cityMatch = text.match(
+    /(?:Engine:\s*.+?\s+)([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+)*)(?=\s+Lane:|\s+Location:)/i
+  );
+  if (cityMatch) {
+    city = cleanText(cityMatch[1]);
+  }
+
+  // Fallback if city not found and location looks like a bare branch
+  if (!city && locationMatch) {
+    const loc = cleanText(locationMatch[1]);
+    const simpleLoc = loc.match(/^(IAA\s+)?([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+)*)/);
+    if (simpleLoc) {
+      city = cleanText(simpleLoc[2]);
     }
   }
 
@@ -84,26 +104,52 @@ function parseCardText(rawText) {
           return node.querySelectorAll('a[href*="/vehicle-details/"]').length;
         }
 
+        function scoreNode(node) {
+          const text = cleanText(node.innerText || '');
+          const detailCount = countDetailLinks(node);
+
+          if (!text) return -9999;
+          if (detailCount !== 1) return -9999;
+
+          let score = 0;
+
+          if (/VIN\s*#:/i.test(text)) score += 20;
+          if (/Stock\s*#:/i.test(text)) score += 20;
+          if (/Lane:/i.test(text)) score += 15;
+          if (/Location:/i.test(text)) score += 15;
+          if (/(Mon|Tue|Wed|Thu|Fri|Sat|Sun),/i.test(text)) score += 12;
+          if (/High Pre-Bid:|Buy Now:|Current Bid:/i.test(text)) score += 10;
+          if (/View All Images/i.test(text)) score += 4;
+
+          if (/SORT BY|ITEMS PER PAGE|WATCH ALL|1-1 of 1|More Join AuctionNow|Hide All Images/i.test(text)) {
+            score -= 40;
+          }
+
+          // Prefer medium-sized blocks over tiny titles or giant wrappers
+          const len = text.length;
+          if (len >= 80 && len <= 600) score += 20;
+          else if (len > 600 && len <= 900) score += 8;
+          else if (len < 40) score -= 25;
+          else if (len > 1200) score -= 30;
+
+          return score;
+        }
+
         function findBestContainer(link) {
           let current = link;
-          let best = null;
+          let best = link.parentElement || link;
+          let bestScore = -9999;
 
-          for (let i = 0; i < 8 && current; i++) {
-            const text = cleanText(current.innerText || '');
-            const detailCount = countDetailLinks(current);
-
-            if (text.length >= 30 && detailCount === 1) {
+          for (let i = 0; i < 10 && current; i++) {
+            const score = scoreNode(current);
+            if (score > bestScore) {
+              bestScore = score;
               best = current;
             }
-
-            if (detailCount > 1 && best) {
-              break;
-            }
-
             current = current.parentElement;
           }
 
-          return best || link.parentElement || link;
+          return best;
         }
 
         return links.map(link => {
@@ -166,4 +212,3 @@ function parseCardText(rawText) {
     await browser.close();
   }
 })();
-    
