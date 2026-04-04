@@ -52,6 +52,7 @@ function trimJoinedText(text) {
 }
 
 function parseBlock(lines) {
+
   const joined = trimJoinedText(lines.join(' '));
 
   const title = lines.find(isTitleLine) || '';
@@ -66,22 +67,31 @@ function parseBlock(lines) {
   const odometer = (joined.match(/\b(\d{1,3}(?:,\d{3})*|\d+)\s*Km\b/i) || [])[1] || '';
   const damageEstimate = (joined.match(/Damage Estimate:\s*\$([0-9,]+\.\d{2})/i) || [])[1] || '';
 
-  // Location should stop before date / bid / status
   const location =
     (joined.match(/Location:\s*(.+?)(?=\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|\s+Closing Date:|\s+High Pre-Bid:|\s+Current Bid:|\s+Buy Now:|\s+Prebid available|$)/i) || [])[1] || '';
 
-  // Engine should stop before city
   const engine =
     (joined.match(/Engine:\s*(.+?)(?=\s+[A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+)*\s+(?:Lane:|Location:)|\s+Lane:|\s+Location:|\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|\s+Closing Date:|\s+Prebid available|$)/i) || [])[1] || '';
 
-  // City is usually after Engine and before Lane/Location
   let city =
     (joined.match(/Engine:\s*.+?\s+([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+)*)(?=\s+(?:Lane:|Location:))/i) || [])[1] || '';
 
-  // Fallback for records with no date but city before Location
   if (!city) {
     city =
-      (joined.match(/Transmission:\s*Auto\s+Stationary\s+Engine:\s*.+?\s+([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+)*)(?=\s+Location:)/i) || [])[1] || '';
+      (joined.match(/Transmission:\s*Auto\s+(?:Run and Drive|Starts|Stationary)\s+Engine:\s*.+?\s+([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+)*)(?=\s+Location:)/i) || [])[1] || '';
+  }
+
+  const functionalStatus =
+    (joined.match(/Transmission:\s*Auto\s+(Run and Drive|Starts|Stationary)\b/i) || [])[1] || '';
+
+  let branding = '';
+  const normalizedLocation = normalizeLine(location);
+
+  if (normalizedLocation) {
+    const brandingMatch = normalizedLocation.match(/-([A-Z][A-Z\s]+)$/i);
+    if (brandingMatch) {
+      branding = normalizeLine(brandingMatch[1]);
+    }
   }
 
   return {
@@ -93,13 +103,17 @@ function parseBlock(lines) {
     city: normalizeLine(city),
     lane: normalizeLine(lane),
     run: normalizeLine(run),
-    location: normalizeLine(location),
+    location: normalizedLocation,
+    branding,
     high_pre_bid: normalizeLine(highPreBid),
     buy_now: normalizeLine(buyNow),
     engine: normalizeLine(engine),
+    functional_status: normalizeLine(functionalStatus),
     odometer_km: odometer ? odometer.replace(/,/g, '') : '',
     damage_estimate: normalizeLine(damageEstimate),
     raw_text: joined
+
+  
   };
 }
 
@@ -159,11 +173,11 @@ function buildBlocksFromLines(lines) {
 
       console.log(`Found ${detailLinks.length} detail links for ${term}`);
 
-      // Collect image links in visual order
-      const imageLinks = await page.$$eval('a', nodes =>
+      const imageLinks = await page.$$eval('[href]', nodes =>
         nodes
-          .filter(n => (n.innerText || '').replace(/\s+/g, ' ').trim().toLowerCase() === 'view all images')
-          .map(n => n.href || '')
+          .filter(n => ((n.innerText || '').replace(/\s+/g, ' ').trim().toLowerCase() === 'view all images'))
+          .map(n => n.getAttribute('href') || '')
+          .filter(Boolean)
       );
 
       console.log(`Found ${imageLinks.length} image links for ${term}`);
