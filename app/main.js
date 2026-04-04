@@ -1,8 +1,13 @@
+
 const { chromium } = require('playwright');
 const fs = require('fs');
 
 function cleanText(value) {
-  return (value || '').replace(/\r/g, '\n').replace(/[ \t]+/g, ' ').replace(/\n+/g, '\n').trim();
+  return (value || '')
+    .replace(/\r/g, '\n')
+    .replace(/[ \t]+/g, ' ')
+    .replace(/\n+/g, '\n')
+    .trim();
 }
 
 function normalizeLine(line) {
@@ -30,13 +35,24 @@ function looksLikeNoise(line) {
     'View All Images',
     'View More',
     '1',
-    '4Vehicles',
     'SORT'
-  ].includes(line);
+  ].includes(line) || /^\d+Vehicles$/i.test(line);
+}
+
+function trimJoinedText(text) {
+  let out = normalizeLine(text);
+
+  out = out.replace(/\s+Prebid available\s+\d+\s+per page\s+\d+-\d+\s+of\s+\d+.*$/i, ' Prebid available');
+  out = out.replace(/\s+\d+\s+per page\s+\d+-\d+\s+of\s+\d+.*$/i, '');
+  out = out.replace(/\s+COMPANY\s+About Us.*$/i, '');
+  out = out.replace(/\s+HELP\s+How to Buy.*$/i, '');
+  out = out.replace(/\s+SITE PREFERENCES\s+English.*$/i, '');
+
+  return out.trim();
 }
 
 function parseBlock(lines) {
-  const joined = lines.join(' ');
+  const joined = trimJoinedText(lines.join(' '));
 
   const title = lines.find(isTitleLine) || '';
   const vin = (joined.match(/VIN\s*#:\s*([A-Z0-9*]+)/i) || [])[1] || '';
@@ -45,49 +61,27 @@ function parseBlock(lines) {
   const closingDate = (joined.match(/Closing Date:\s*([A-Za-z]{3},\s+[A-Za-z]{3}\s+\d{2},\s+\d{4})/i) || [])[1] || '';
   const lane = (joined.match(/Lane:\s*([^\s]+)/i) || [])[1] || '';
   const run = (joined.match(/Run:\s*([^\s]+)/i) || [])[1] || '';
-  const location = (joined.match(/Location:\s*(.+?)(?=\s+Stationary|\s+Prebid available|\s+Closing Date:|\s+Buy Now:|$)/i) || [])[1] || '';
   const buyNow = (joined.match(/Buy Now:\s*\$([0-9,]+\.\d{2})/i) || [])[1] || '';
   const highPreBid = (joined.match(/High Pre-Bid:\s*\$([0-9,]+\.\d{2})/i) || [])[1] || '';
+  const odometer = (joined.match(/\b(\d{1,3}(?:,\d{3})*|\d+)\s*Km\b/i) || [])[1] || '';
+  const damageEstimate = (joined.match(/Damage Estimate:\s*\$([0-9,]+\.\d{2})/i) || [])[1] || '';
 
-  // City is usually the standalone line after stock or after date.
-  let city = '';
-  for (let i = 0; i < lines.length; i++) {
-    if (/^Stock\s*#:/i.test(lines[i])) {
-      const next = lines[i + 1] || '';
-      if (
-        next &&
-        !/^VIN\s*#:/i.test(next) &&
-        !/^Stock\s*#:/i.test(next) &&
-        !/^Lane:/i.test(next) &&
-        !/^Run:/i.test(next) &&
-        !/^Location:/i.test(next) &&
-        !/^Stationary$/i.test(next) &&
-        !/^Prebid available$/i.test(next) &&
-        !/^Closing Date:/i.test(next) &&
-        !/^Buy Now:/i.test(next) &&
-        !/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun),/i.test(next)
-      ) {
-        city = next;
-      }
-    }
-  }
+  // Location should stop before date / bid / status
+  const location =
+    (joined.match(/Location:\s*(.+?)(?=\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|\s+Closing Date:|\s+High Pre-Bid:|\s+Current Bid:|\s+Buy Now:|\s+Prebid available|$)/i) || [])[1] || '';
 
-  // If the line after stock is a date, then city is often after date.
+  // Engine should stop before city
+  const engine =
+    (joined.match(/Engine:\s*(.+?)(?=\s+[A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+)*\s+(?:Lane:|Location:)|\s+Lane:|\s+Location:|\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|\s+Closing Date:|\s+Prebid available|$)/i) || [])[1] || '';
+
+  // City is usually after Engine and before Lane/Location
+  let city =
+    (joined.match(/Engine:\s*.+?\s+([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+)*)(?=\s+(?:Lane:|Location:))/i) || [])[1] || '';
+
+  // Fallback for records with no date but city before Location
   if (!city) {
-    for (let i = 0; i < lines.length; i++) {
-      if (/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun),/i.test(lines[i])) {
-        const next = lines[i + 1] || '';
-        if (
-          next &&
-          !/^Lane:/i.test(next) &&
-          !/^Location:/i.test(next) &&
-          !/^Stationary$/i.test(next) &&
-          !/^Prebid available$/i.test(next)
-        ) {
-          city = next;
-        }
-      }
-    }
+    city =
+      (joined.match(/Transmission:\s*Auto\s+Stationary\s+Engine:\s*.+?\s+([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+)*)(?=\s+Location:)/i) || [])[1] || '';
   }
 
   return {
@@ -102,6 +96,9 @@ function parseBlock(lines) {
     location: normalizeLine(location),
     high_pre_bid: normalizeLine(highPreBid),
     buy_now: normalizeLine(buyNow),
+    engine: normalizeLine(engine),
+    odometer_km: odometer ? odometer.replace(/,/g, '') : '',
+    damage_estimate: normalizeLine(damageEstimate),
     raw_text: joined
   };
 }
@@ -114,19 +111,14 @@ function buildBlocksFromLines(lines) {
 
   for (const line of useful) {
     if (isTitleLine(line)) {
-      if (current.length) {
-        blocks.push(current);
-      }
+      if (current.length) blocks.push(current);
       current = [line];
     } else if (current.length) {
       current.push(line);
     }
   }
 
-  if (current.length) {
-    blocks.push(current);
-  }
-
+  if (current.length) blocks.push(current);
   return blocks;
 }
 
@@ -167,15 +159,23 @@ function buildBlocksFromLines(lines) {
 
       console.log(`Found ${detailLinks.length} detail links for ${term}`);
 
+      // Collect image links in visual order
+      const imageLinks = await page.$$eval('a', nodes =>
+        nodes
+          .filter(n => (n.innerText || '').replace(/\s+/g, ' ').trim().toLowerCase() === 'view all images')
+          .map(n => n.href || '')
+      );
+
+      console.log(`Found ${imageLinks.length} image links for ${term}`);
+
       const count = Math.min(blocks.length, detailLinks.length);
-      console.log(`Pairing ${count} records for ${term}`);
 
       for (let i = 0; i < count; i++) {
         const parsed = parseBlock(blocks[i]);
         allData.push({
           search_term: term,
           detail_page: detailLinks[i],
-          image_page: '',
+          image_page: imageLinks[i] || '',
           ...parsed
         });
       }
