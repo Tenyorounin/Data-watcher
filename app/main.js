@@ -5,6 +5,43 @@ function cleanText(value) {
   return (value || '').replace(/\s+/g, ' ').trim();
 }
 
+function parseCardText(rawText) {
+  const text = cleanText(rawText);
+
+  const titleMatch = text.match(/^\d{4}\s+[A-Z0-9][A-Z0-9\s\-\.\/]*?(?=View All Images|VIN|Stock|Mon,|Tue,|Wed,|Thu,|Fri,|Sat,|Sun,|$)/i);
+  const vinMatch = text.match(/VIN\s*#:\s*([A-Z0-9*]+)/i);
+  const stockMatch = text.match(/Stock\s*#:\s*([A-Z0-9-]+)/i);
+  const dateMatch = text.match(/\b(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),\s+[A-Za-z]{3}\s+\d{2},\s+\d{2}:\d{2}\s+(?:AM|PM)\s+[A-Z]{2,4}\b/);
+  const laneRunMatch = text.match(/Lane:\s*([^\s]+)\s+Run:\s*([^\s]+)/i);
+  const locationMatch = text.match(/Location:\s*([^$]+?)(?=Starts|High Pre-Bid:|Current Bid:|Buy Now:|$)/i);
+  const highPreBidMatch = text.match(/High Pre-Bid:\s*\$([0-9,]+\.\d{2})/i);
+  const currentBidMatch = text.match(/Current Bid:\s*\$([0-9,]+\.\d{2})/i);
+  const buyNowMatch = text.match(/Buy Now:\s*\$([0-9,]+\.\d{2})/i);
+
+  let city = '';
+  if (dateMatch) {
+    const afterDate = text.slice(text.indexOf(dateMatch[0]) + dateMatch[0].length).trim();
+    const cityMatch = afterDate.match(/^(.+?)(?=Lane:|Run:|Location:|Starts|High Pre-Bid:|Current Bid:|Buy Now:|$)/i);
+    if (cityMatch) {
+      city = cleanText(cityMatch[1]);
+    }
+  }
+
+  return {
+    title: titleMatch ? cleanText(titleMatch[0]) : '',
+    vin: vinMatch ? vinMatch[1] : '',
+    stock_number: stockMatch ? stockMatch[1] : '',
+    sale_datetime: dateMatch ? dateMatch[0] : '',
+    city,
+    lane: laneRunMatch ? cleanText(laneRunMatch[1]) : '',
+    run: laneRunMatch ? cleanText(laneRunMatch[2]) : '',
+    location: locationMatch ? cleanText(locationMatch[1]) : '',
+    high_pre_bid: highPreBidMatch ? highPreBidMatch[1] : '',
+    current_bid: currentBidMatch ? currentBidMatch[1] : '',
+    buy_now: buyNowMatch ? buyNowMatch[1] : ''
+  };
+}
+
 (async () => {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
@@ -28,94 +65,56 @@ function cleanText(value) {
       await box.fill(term, { timeout: 10000 });
       await page.keyboard.press('Enter');
 
-      await page.waitForTimeout(6000);
+      await page.waitForTimeout(7000);
 
-      // Try several likely repeated container selectors.
-      const candidateSelectors = [
-        '[class*="vehicle"]',
-        '[class*="result"]',
-        '[class*="card"]',
-        '[class*="listing"]',
-        'article',
-        '.card',
-        '.search-result',
-        '.vehicle-card'
-      ];
-
-      let chosenSelector = '';
-      let chosenCount = 0;
-
-      for (const selector of candidateSelectors) {
-        const count = await page.locator(selector).count().catch(() => 0);
-        console.log(`Selector ${selector} -> ${count}`);
-
-        if (count > chosenCount && count < 200) {
-          chosenSelector = selector;
-          chosenCount = count;
+      const records = await page.$$eval('a[href*="/vehicle-details/"]', links => {
+        function cleanText(value) {
+          return (value || '').replace(/\s+/g, ' ').trim();
         }
-      }
 
-      console.log(`Chosen selector for ${term}: ${chosenSelector} (${chosenCount})`);
+        function findContainer(node) {
+          let current = node;
+          for (let i = 0; i < 6 && current; i++) {
+            const text = cleanText(current.innerText || '');
+            if (text.length > 40) return current;
+            current = current.parentElement;
+          }
+          return node.parentElement || node;
+        }
 
-      let records = [];
+        return links.map(link => {
+          const detailPage = link.href || '';
+          const container = findContainer(link);
+          const rawText = cleanText(container.innerText || '');
 
-      if (chosenSelector) {
-        records = await page.$$eval(chosenSelector, nodes =>
-          nodes.map(node => {
-            const text = (node.innerText || '').replace(/\s+/g, ' ').trim();
+          const allLinks = Array.from(container.querySelectorAll('a')).map(a => ({
+            text: cleanText(a.innerText || ''),
+            href: a.href || ''
+          }));
 
-            const links = Array.from(node.querySelectorAll('a')).map(a => ({
-              text: (a.innerText || '').replace(/\s+/g, ' ').trim(),
-              href: a.href || ''
-            }));
-
-            return { text, links };
-          })
-        );
-      }
-
-      // Keep only containers that actually contain a detail link.
-      const filtered = records
-        .map(item => {
-          const detail = item.links.find(link =>
-            link.href && link.href.startsWith('https://ca.iaai.com/vehicle-details/')
-          );
-
-          const image = item.links.find(link =>
-            (link.text || '').toLowerCase().includes('view all images')
+          const imageLink = allLinks.find(a =>
+            a.text.toLowerCase().includes('view all images')
           );
 
           return {
-            search_term: term,
-            raw_text: item.text,
-            detail_page: detail ? detail.href : '',
-            image_page: image ? image.href : '',
-            links: item.links
+            detail_page: detailPage,
+            image_page: imageLink ? imageLink.href : '',
+            raw_text: rawText
           };
-        })
-        .filter(item => item.detail_page);
+        });
+      });
 
-      console.log(`Filtered records for ${term}: ${filtered.length}`);
-      allData.push(...filtered);
+      console.log(`Found ${records.length} raw result records for ${term}`);
 
-      await page.screenshot({ path: `debug-${term.replace(/[^a-z0-9]/gi, '_')}.png`, fullPage: true }).catch(() => {});
-      await page.waitForTimeout(2000);
-    }
+      const parsed = records.map(record => ({
+        search_term: term,
+        detail_page: record.detail_page,
+        image_page: record.image_page,
+        raw_text: record.raw_text,
+        ...parseCardText(record.raw_text)
+      }));
 
-    // Deduplicate by detail page
-    const unique = {};
-    for (const item of allData) {
-      if (item.detail_page) unique[item.detail_page] = item;
-    }
+      allData.push(...parsed);
 
-    const final = Object.values(unique);
-    fs.writeFileSync('data.json', JSON.stringify(final, null, 2));
-    console.log(`Saved ${final.length} result containers`);
-  } catch (err) {
-    console.error('Task failed:', err);
-    await page.screenshot({ path: 'failure.png', fullPage: true }).catch(() => {});
-    throw err;
-  } finally {
-    await browser.close();
-  }
-})();
+      await page.screenshot({
+        path: `debug-${term.replace(/[^a-z0-9]/
