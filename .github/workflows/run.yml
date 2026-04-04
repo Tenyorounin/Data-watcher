@@ -5,30 +5,39 @@ on:
     - cron: '0 16 * * 1,3,5'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   run-task:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: checkout
+        uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - name: setup node
+        uses: actions/setup-node@v6
         with:
-          node-version: '18'
+          node-version: '22'
 
-      - run: |
+      - name: install deps
+        run: |
           cd app
           npm install
 
-      - run: |
+      - name: install browser
+        run: |
           cd app
-          npx playwright install --with-deps
+          npx playwright install --with-deps chromium
 
-      - run: |
+      - name: run task
+        run: |
           cd app
           node main.js
 
-      - run: |
+      - name: commit results
+        run: |
           git config user.name "bot"
           git config user.email "bot@example.com"
           git add app/data.json
