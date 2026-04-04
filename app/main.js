@@ -8,37 +8,45 @@ function cleanText(value) {
 function parseCardText(rawText) {
   const text = cleanText(rawText);
 
-  const titleMatch = text.match(/^\d{4}\s+[A-Z0-9][A-Z0-9\s\-\.\/]*?(?=View All Images|VIN|Stock|Mon,|Tue,|Wed,|Thu,|Fri,|Sat,|Sun,|$)/i);
+  const titleMatch = text.match(/\b(20\d{2}\s+[A-Z0-9][A-Z0-9\s\-\.\/]*?)(?=\s+VIN\s*#:|\s+Stock\s*#:|\s+Damage|\s+\d+\s*Km|\s+Transmission:|\s+Engine:|\s+Lane:|\s+Location:|\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|\s+Closing Date:|\s+Buy Now:|\s+Prebid available|$)/i);
   const vinMatch = text.match(/VIN\s*#:\s*([A-Z0-9*]+)/i);
   const stockMatch = text.match(/Stock\s*#:\s*([A-Z0-9-]+)/i);
   const dateMatch = text.match(/\b(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),\s+[A-Za-z]{3}\s+\d{2},\s+\d{2}:\d{2}\s+(?:AM|PM)\s+[A-Z]{2,4}\b/);
+  const closingDateMatch = text.match(/Closing Date:\s*([A-Za-z]{3},\s+[A-Za-z]{3}\s+\d{2},\s+\d{4})/i);
   const laneRunMatch = text.match(/Lane:\s*([^\s]+)\s+Run:\s*([^\s]+)/i);
-  const locationMatch = text.match(/Location:\s*([^$]+?)(?=Starts|High Pre-Bid:|Current Bid:|Buy Now:|$)/i);
+  const locationMatch = text.match(/Location:\s*([^$]+?)(?=Prebid available|Starts|High Pre-Bid:|Current Bid:|Buy Now:|Closing Date:|$)/i);
   const highPreBidMatch = text.match(/High Pre-Bid:\s*\$([0-9,]+\.\d{2})/i);
   const currentBidMatch = text.match(/Current Bid:\s*\$([0-9,]+\.\d{2})/i);
   const buyNowMatch = text.match(/Buy Now:\s*\$([0-9,]+\.\d{2})/i);
+  const engineMatch = text.match(/Engine:\s*([^$]+?)(?=Location:|Lane:|Run:|(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|Closing Date:|Buy Now:|Prebid available|$)/i);
+  const odometerMatch = text.match(/\b(\d{1,3}(?:,\d{3})*|\d+)\s*Km\b/i);
+  const damageEstimateMatch = text.match(/Damage Estimate:\s*\$([0-9,]+\.\d{2})/i);
 
   let city = '';
-  if (dateMatch) {
-    const afterDate = text.slice(text.indexOf(dateMatch[0]) + dateMatch[0].length).trim();
-    const cityMatch = afterDate.match(/^(.+?)(?=Lane:|Run:|Location:|Starts|High Pre-Bid:|Current Bid:|Buy Now:|$)/i);
-    if (cityMatch) {
-      city = cleanText(cityMatch[1]);
+  if (engineMatch) {
+    const tail = cleanText(engineMatch[1]);
+    const pieces = tail.split(/\s+/);
+    if (pieces.length > 1) {
+      city = tail;
     }
   }
 
   return {
-    title: titleMatch ? cleanText(titleMatch[0]) : '',
+    title: titleMatch ? cleanText(titleMatch[1]) : '',
     vin: vinMatch ? vinMatch[1] : '',
     stock_number: stockMatch ? stockMatch[1] : '',
     sale_datetime: dateMatch ? dateMatch[0] : '',
+    closing_date: closingDateMatch ? cleanText(closingDateMatch[1]) : '',
     city,
     lane: laneRunMatch ? cleanText(laneRunMatch[1]) : '',
     run: laneRunMatch ? cleanText(laneRunMatch[2]) : '',
     location: locationMatch ? cleanText(locationMatch[1]) : '',
     high_pre_bid: highPreBidMatch ? highPreBidMatch[1] : '',
     current_bid: currentBidMatch ? currentBidMatch[1] : '',
-    buy_now: buyNowMatch ? buyNowMatch[1] : ''
+    buy_now: buyNowMatch ? buyNowMatch[1] : '',
+    engine: engineMatch ? cleanText(engineMatch[1]) : '',
+    odometer_km: odometerMatch ? odometerMatch[1].replace(/,/g, '') : '',
+    damage_estimate: damageEstimateMatch ? damageEstimateMatch[1] : ''
   };
 }
 
@@ -72,19 +80,34 @@ function parseCardText(rawText) {
           return (value || '').replace(/\s+/g, ' ').trim();
         }
 
-        function findContainer(node) {
-          let current = node;
-          for (let i = 0; i < 6 && current; i++) {
+        function countDetailLinks(node) {
+          return node.querySelectorAll('a[href*="/vehicle-details/"]').length;
+        }
+
+        function findBestContainer(link) {
+          let current = link;
+          let best = null;
+
+          for (let i = 0; i < 8 && current; i++) {
             const text = cleanText(current.innerText || '');
-            if (text.length > 40) return current;
+            const detailCount = countDetailLinks(current);
+
+            if (text.length >= 30 && detailCount === 1) {
+              best = current;
+            }
+
+            if (detailCount > 1 && best) {
+              break;
+            }
+
             current = current.parentElement;
           }
-          return node.parentElement || node;
+
+          return best || link.parentElement || link;
         }
 
         return links.map(link => {
-          const detailPage = link.href || '';
-          const container = findContainer(link);
+          const container = findBestContainer(link);
           const rawText = cleanText(container.innerText || '');
 
           const allLinks = Array.from(container.querySelectorAll('a')).map(a => ({
@@ -97,7 +120,7 @@ function parseCardText(rawText) {
           );
 
           return {
-            detail_page: detailPage,
+            detail_page: link.href || '',
             image_page: imageLink ? imageLink.href : '',
             raw_text: rawText
           };
@@ -143,3 +166,4 @@ function parseCardText(rawText) {
     await browser.close();
   }
 })();
+    
