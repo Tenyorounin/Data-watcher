@@ -116,5 +116,30 @@ function parseCardText(rawText) {
 
       allData.push(...parsed);
 
+      const safeTerm = term.replace(/[^a-z0-9]/gi, '_');
       await page.screenshot({
-        path: `debug-${term.replace(/[^a-z0-9]/
+        path: `debug-${safeTerm}.png`,
+        fullPage: true
+      }).catch(() => {});
+
+      await page.waitForTimeout(2000);
+    }
+
+    const unique = {};
+    for (const item of allData) {
+      if (item.detail_page) {
+        unique[item.detail_page] = item;
+      }
+    }
+
+    const final = Object.values(unique);
+    fs.writeFileSync('data.json', JSON.stringify(final, null, 2));
+    console.log(`Saved ${final.length} parsed records`);
+  } catch (err) {
+    console.error('Task failed:', err);
+    await page.screenshot({ path: 'failure.png', fullPage: true }).catch(() => {});
+    throw err;
+  } finally {
+    await browser.close();
+  }
+})();
