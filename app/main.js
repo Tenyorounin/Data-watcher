@@ -41,7 +41,31 @@ function looksLikeNoise(line) {
     'View All Images',
     'View More',
     '1',
-    'SORT'
+    'SORT',
+    'Seller Login',
+    'Contact us',
+    'Global Locations',
+    'Buyer Login',
+    'Join AuctionNow',
+    'Public Auctions',
+    'Site Sales',
+    'Buy Now',
+    'Locations',
+    'Auction Rules/Buyer Agreement',
+    'Our Services',
+    'Buyers',
+    'Sellers',
+    'Vendors',
+    'Seller Services Contact',
+    'Transportation Contact',
+    'Branch Contact',
+    'Careers',
+    'FAQs',
+    'How To Pay IAA',
+    'AFC',
+    'Register Now',
+    'Manage Cookies',
+    'Download'
   ].includes(line) || /^\d+Vehicles$/i.test(line);
 }
 
@@ -188,17 +212,27 @@ function buildBlocksFromLines(lines) {
 
   const blocks = [];
   let current = [];
+  let startedResults = false;
 
   for (const line of useful) {
     if (isTitleLine(line)) {
+      startedResults = true;
+
       if (current.length) {
         blocks.push(current);
       }
       current = [line];
-    } else if (current.length) {
+      continue;
+    }
+
+    if (!startedResults) {
+      continue;
+    }
+
+    if (current.length) {
       current.push(line);
     } else {
-      // Preserve orphan lines before a valid title as their own malformed block evidence.
+      // Only preserve malformed orphan blocks after results have started.
       blocks.push([line]);
     }
   }
@@ -270,7 +304,6 @@ async function collectPageData(page, term, pageNumber) {
     });
   }
 
-  // Preserve extra blocks with no matching detail link as explicit parse problems.
   for (let i = count; i < blocks.length; i++) {
     const parsed = parseBlock(blocks[i]);
     pageData.push({
