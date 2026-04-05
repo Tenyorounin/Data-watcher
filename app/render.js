@@ -463,6 +463,7 @@ const html = `<!doctype html>
       if (v.includes('salvage') || v.includes('v.g.a') || v === 'vga') return 'branding-yellow';
       if (
         v.includes('irreparable') ||
+        v.includes('irrecuperable') ||
         v.includes('irrécupérable') ||
         v.includes('non-repairable') ||
         v.includes('non repairable')
