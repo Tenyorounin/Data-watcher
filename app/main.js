@@ -1,4 +1,3 @@
-
 const { chromium } = require('playwright');
 const fs = require('fs');
 
@@ -51,8 +50,48 @@ function trimJoinedText(text) {
   return out.trim();
 }
 
-function parseBlock(lines) {
+function extractBrandingFromLocation(location) {
+  const normalizedLocation = normalizeLine(location);
+  if (!normalizedLocation) return '';
 
+  const hyphenMatch = normalizedLocation.match(/-([A-Z][A-Z\s]+)$/i);
+  if (hyphenMatch) {
+    return normalizeLine(hyphenMatch[1]);
+  }
+
+  const knownBrandings = [
+    'NOT BRANDED',
+    'SALVAGE',
+    'REBUILT',
+    'IRREPARABLE',
+    'NON-REPAIRABLE',
+    'NON REPAIRABLE',
+    'CLEAN TITLE'
+  ];
+
+  for (const candidate of knownBrandings) {
+    const pattern = new RegExp(`\\b${candidate.replace(/\s+/g, '\\s+')}\\b$`, 'i');
+    if (pattern.test(normalizedLocation)) {
+      return candidate;
+    }
+  }
+
+  return '';
+}
+
+function extractLocationName(location, branding) {
+  let locationName = normalizeLine(location);
+  if (!locationName || !branding) return locationName;
+
+  locationName = locationName
+    .replace(new RegExp(`-${branding.replace(/\s+/g, '\\s+')}$`, 'i'), '')
+    .replace(new RegExp(`\\b${branding.replace(/\s+/g, '\\s+')}\\b$`, 'i'), '')
+    .trim();
+
+  return normalizeLine(locationName);
+}
+
+function parseBlock(lines) {
   const joined = trimJoinedText(lines.join(' '));
 
   const title = lines.find(isTitleLine) || '';
@@ -84,15 +123,9 @@ function parseBlock(lines) {
   const functionalStatus =
     (joined.match(/Transmission:\s*Auto\s+(Run and Drive|Starts|Stationary)\b/i) || [])[1] || '';
 
-  let branding = '';
   const normalizedLocation = normalizeLine(location);
-
-  if (normalizedLocation) {
-    const brandingMatch = normalizedLocation.match(/-([A-Z][A-Z\s]+)$/i);
-    if (brandingMatch) {
-      branding = normalizeLine(brandingMatch[1]);
-    }
-  }
+  const branding = extractBrandingFromLocation(normalizedLocation);
+  const locationName = extractLocationName(normalizedLocation, branding);
 
   return {
     title: normalizeLine(title),
@@ -104,6 +137,7 @@ function parseBlock(lines) {
     lane: normalizeLine(lane),
     run: normalizeLine(run),
     location: normalizedLocation,
+    location_name: locationName,
     branding,
     high_pre_bid: normalizeLine(highPreBid),
     buy_now: normalizeLine(buyNow),
@@ -112,8 +146,6 @@ function parseBlock(lines) {
     odometer_km: odometer ? odometer.replace(/,/g, '') : '',
     damage_estimate: normalizeLine(damageEstimate),
     raw_text: joined
-
-  
   };
 }
 
