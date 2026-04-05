@@ -683,4 +683,4 @@ const html = `<!doctype html>
 fs.mkdirSync(outputDir, { recursive: true });
 fs.writeFileSync(outputPath, html, 'utf8');
 
-console.log(\`Wrote \${outputPath}\`);
+console.log(`Wrote ${outputPath}`);
