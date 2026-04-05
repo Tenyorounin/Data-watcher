@@ -21,7 +21,14 @@ function splitLines(text) {
 }
 
 function isTitleLine(line) {
-  return /^20\d{2}\s+[A-Z0-9]/i.test(line);
+  const text = normalizeLine(line);
+  const match = text.match(/^(\d{4})\s+[A-Z0-9]/i);
+  if (!match) return false;
+
+  const year = Number(match[1]);
+  const currentYear = new Date().getFullYear();
+
+  return year >= 1980 && year <= currentYear + 2;
 }
 
 function looksLikeNoise(line) {
@@ -65,7 +72,7 @@ function extractBrandingFromLocation(location) {
   const normalizedLocation = normalizeLine(location);
   if (!normalizedLocation) return '';
 
-  const hyphenMatch = normalizedLocation.match(/-([A-Z0-9][A-Z0-9.\s]+)$/i);
+  const hyphenMatch = normalizedLocation.match(/-([A-Z0-9][A-Z0-9.\sÀ-ÿ]+)$/i);
   if (hyphenMatch) {
     return normalizeLine(hyphenMatch[1]);
   }
@@ -75,6 +82,8 @@ function extractBrandingFromLocation(location) {
     'SALVAGE',
     'REBUILT',
     'IRREPARABLE',
+    'IRRECUPERABLE',
+    'IRRÉCUPÉRABLE',
     'NON-REPAIRABLE',
     'NON REPAIRABLE',
     'CLEAN TITLE',
@@ -110,7 +119,9 @@ function extractLocationName(location, branding) {
 function parseBlock(lines) {
   const joined = trimJoinedText(lines.join(' '));
 
-  const title = lines.find(isTitleLine) || '';
+  const titleCandidate = lines.find(isTitleLine) || '';
+  const title = isTitleLine(titleCandidate) ? titleCandidate : '';
+
   const vin = (joined.match(/VIN\s*#:\s*([A-Z0-9*]+)/i) || [])[1] || '';
   const stock = (joined.match(/Stock\s*#:\s*([A-Z0-9-]+)/i) || [])[1] || '';
   const saleDate = (joined.match(/\b(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),\s+[A-Za-z]{3}\s+\d{2},\s+\d{2}:\d{2}\s+(?:AM|PM)\s+[A-Z]{2,4}\b/) || [])[0] || '';
@@ -126,14 +137,14 @@ function parseBlock(lines) {
     (joined.match(/Location:\s*(.+?)(?=\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|\s+Closing Date:|\s+High Pre-Bid:|\s+Current Bid:|\s+Buy Now:|\s+Prebid available|$)/i) || [])[1] || '';
 
   const engine =
-    (joined.match(/Engine:\s*(.+?)(?=\s+[A-Z][A-Za-z]+(?:\s*\([^)]+\))?(?:\s+[A-Z][A-Za-z]+(?:\s*\([^)]+\))?)*\s+(?:Lane:|Location:)|\s+Lane:|\s+Location:|\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|\s+Closing Date:|\s+Prebid available|$)/i) || [])[1] || '';
+    (joined.match(/Engine:\s*(.+?)(?=\s+[A-Z][A-Za-zÀ-ÿ]+(?:\s*\([^)]+\))?(?:\s+[A-Z][A-Za-zÀ-ÿ]+(?:\s*\([^)]+\))?)*\s+(?:Lane:|Location:)|\s+Lane:|\s+Location:|\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|\s+Closing Date:|\s+Prebid available|$)/i) || [])[1] || '';
 
   let city =
-    (joined.match(/Engine:\s*.+?\s+([A-Z][A-Za-z]+(?:\s*\([^)]+\))?(?:\s+[A-Z][A-Za-z]+(?:\s*\([^)]+\))?)*)(?=\s+(?:Lane:|Location:))/i) || [])[1] || '';
+    (joined.match(/Engine:\s*.+?\s+([A-Z][A-Za-zÀ-ÿ]+(?:\s*\([^)]+\))?(?:\s+[A-Z][A-Za-zÀ-ÿ]+(?:\s*\([^)]+\))?)*)(?=\s+(?:Lane:|Location:))/i) || [])[1] || '';
 
   if (!city) {
     city =
-      (joined.match(/Transmission:\s*Auto\s+(?:RunAndDrive|Run and Drive|Starts|Stationary)\s+Engine:\s*.+?\s+([A-Z][A-Za-z]+(?:\s*\([^)]+\))?(?:\s+[A-Z][A-Za-z]+(?:\s*\([^)]+\))?)*)(?=\s+Location:)/i) || [])[1] || '';
+      (joined.match(/Transmission:\s*Auto\s+(?:RunAndDrive|Run and Drive|Starts|Stationary)\s+Engine:\s*.+?\s+([A-Z][A-Za-zÀ-ÿ]+(?:\s*\([^)]+\))?(?:\s+[A-Z][A-Za-zÀ-ÿ]+(?:\s*\([^)]+\))?)*)(?=\s+Location:)/i) || [])[1] || '';
   }
 
   const functionalStatusRaw =
@@ -144,6 +155,9 @@ function parseBlock(lines) {
   const normalizedLocation = normalizeLine(location);
   const branding = extractBrandingFromLocation(normalizedLocation);
   const locationName = extractLocationName(normalizedLocation, branding);
+
+  const parseIssue = !title;
+  const parseIssueReason = parseIssue ? 'missing_valid_title' : '';
 
   return {
     title: normalizeLine(title),
@@ -163,6 +177,8 @@ function parseBlock(lines) {
     functional_status: functionalStatus,
     odometer_km: odometer ? odometer.replace(/,/g, '') : '',
     damage_estimate: normalizeLine(damageEstimate),
+    parse_issue: parseIssue,
+    parse_issue_reason: parseIssueReason,
     raw_text: joined
   };
 }
@@ -175,14 +191,22 @@ function buildBlocksFromLines(lines) {
 
   for (const line of useful) {
     if (isTitleLine(line)) {
-      if (current.length) blocks.push(current);
+      if (current.length) {
+        blocks.push(current);
+      }
       current = [line];
     } else if (current.length) {
       current.push(line);
+    } else {
+      // Preserve orphan lines before a valid title as their own malformed block evidence.
+      blocks.push([line]);
     }
   }
 
-  if (current.length) blocks.push(current);
+  if (current.length) {
+    blocks.push(current);
+  }
+
   return blocks;
 }
 
@@ -246,6 +270,20 @@ async function collectPageData(page, term, pageNumber) {
     });
   }
 
+  // Preserve extra blocks with no matching detail link as explicit parse problems.
+  for (let i = count; i < blocks.length; i++) {
+    const parsed = parseBlock(blocks[i]);
+    pageData.push({
+      search_term: term,
+      result_page: pageNumber,
+      detail_page: '',
+      image_page: '',
+      ...parsed,
+      parse_issue: true,
+      parse_issue_reason: parsed.parse_issue_reason || 'block_without_matching_detail_link'
+    });
+  }
+
   return {
     pageData,
     signature: detailLinks.join('|')
@@ -255,7 +293,6 @@ async function collectPageData(page, term, pageNumber) {
 async function goToNextPage(page) {
   const currentUrl = page.url();
 
-  // Try explicit Next controls first
   const nextCandidates = [
     page.getByRole('link', { name: /next/i }),
     page.getByRole('button', { name: /next/i }),
@@ -282,7 +319,6 @@ async function goToNextPage(page) {
     } catch (_) {}
   }
 
-  // Fallback: infer next numeric page from current selected page
   const nextHref = await page.evaluate(() => {
     const current =
       document.querySelector('[aria-current="page"]') ||
@@ -299,7 +335,6 @@ async function goToNextPage(page) {
       }
     }
 
-    // last fallback: look for a visible pagination-like numeric link after "1"
     const links = Array.from(document.querySelectorAll('a[href]'));
     const candidates = links
       .map(a => ({
@@ -309,7 +344,6 @@ async function goToNextPage(page) {
       .filter(x => /^\d+$/.test(x.text));
 
     if (candidates.length > 0) {
-      // Just take the smallest numeric link greater than 1
       const sorted = candidates
         .map(x => ({ ...x, num: parseInt(x.text, 10) }))
         .sort((a, b) => a.num - b.num);
@@ -389,12 +423,17 @@ async function goToNextPage(page) {
       }
     }
 
-    const unique = {};
-    for (const item of allData) {
-      if (item.detail_page) unique[item.detail_page] = item;
-    }
+    const final = allData.map(item => {
+      if (!item.title && item.raw_text) {
+        return {
+          ...item,
+          parse_issue: true,
+          parse_issue_reason: item.parse_issue_reason || 'missing_valid_title'
+        };
+      }
+      return item;
+    });
 
-    const final = Object.values(unique);
     fs.writeFileSync('data.json', JSON.stringify(final, null, 2));
     console.log(`Saved ${final.length} parsed records`);
   } catch (err) {
