@@ -50,15 +50,28 @@ function trimJoinedText(text) {
   return out.trim();
 }
 
+function normalizeFunctionalStatus(value) {
+  const v = normalizeLine(value).toLowerCase();
+  if (!v) return '';
+
+  if (v === 'runanddrive' || v === 'run and drive') return 'Run and Drive';
+  if (v === 'starts') return 'Starts';
+  if (v === 'stationary') return 'Stationary';
+
+  return normalizeLine(value);
+}
+
 function extractBrandingFromLocation(location) {
   const normalizedLocation = normalizeLine(location);
   if (!normalizedLocation) return '';
 
-  const hyphenMatch = normalizedLocation.match(/-([A-Z][A-Z\s]+)$/i);
+  // Case 1: final suffix after a hyphen, like ON-SALVAGE, ON-NOT BRANDED, QC-V.G.A
+  const hyphenMatch = normalizedLocation.match(/-([A-Z0-9][A-Z0-9.\s]+)$/i);
   if (hyphenMatch) {
     return normalizeLine(hyphenMatch[1]);
   }
 
+  // Case 2: trailing plain status with no hyphen, like "Fraser Valley SALVAGE"
   const knownBrandings = [
     'NOT BRANDED',
     'SALVAGE',
@@ -66,11 +79,12 @@ function extractBrandingFromLocation(location) {
     'IRREPARABLE',
     'NON-REPAIRABLE',
     'NON REPAIRABLE',
-    'CLEAN TITLE'
+    'CLEAN TITLE',
+    'V.G.A'
   ];
 
   for (const candidate of knownBrandings) {
-    const pattern = new RegExp(`\\b${candidate.replace(/\s+/g, '\\s+')}\\b$`, 'i');
+    const pattern = new RegExp(`\\b${candidate.replace(/\./g, '\\.').replace(/\s+/g, '\\s+')}\\b$`, 'i');
     if (pattern.test(normalizedLocation)) {
       return candidate;
     }
@@ -83,9 +97,13 @@ function extractLocationName(location, branding) {
   let locationName = normalizeLine(location);
   if (!locationName || !branding) return locationName;
 
+  const escapedBranding = branding
+    .replace(/\./g, '\\.')
+    .replace(/\s+/g, '\\s+');
+
   locationName = locationName
-    .replace(new RegExp(`-${branding.replace(/\s+/g, '\\s+')}$`, 'i'), '')
-    .replace(new RegExp(`\\b${branding.replace(/\s+/g, '\\s+')}\\b$`, 'i'), '')
+    .replace(new RegExp(`-${escapedBranding}$`, 'i'), '')
+    .replace(new RegExp(`\\b${escapedBranding}\\b$`, 'i'), '')
     .trim();
 
   return normalizeLine(locationName);
@@ -110,18 +128,20 @@ function parseBlock(lines) {
     (joined.match(/Location:\s*(.+?)(?=\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|\s+Closing Date:|\s+High Pre-Bid:|\s+Current Bid:|\s+Buy Now:|\s+Prebid available|$)/i) || [])[1] || '';
 
   const engine =
-    (joined.match(/Engine:\s*(.+?)(?=\s+[A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+)*\s+(?:Lane:|Location:)|\s+Lane:|\s+Location:|\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|\s+Closing Date:|\s+Prebid available|$)/i) || [])[1] || '';
+    (joined.match(/Engine:\s*(.+?)(?=\s+[A-Z][A-Za-z]+(?:\s*\([^)]+\))?(?:\s+[A-Z][A-Za-z]+(?:\s*\([^)]+\))?)*\s+(?:Lane:|Location:)|\s+Lane:|\s+Location:|\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|\s+Closing Date:|\s+Prebid available|$)/i) || [])[1] || '';
 
   let city =
-    (joined.match(/Engine:\s*.+?\s+([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+)*)(?=\s+(?:Lane:|Location:))/i) || [])[1] || '';
+    (joined.match(/Engine:\s*.+?\s+([A-Z][A-Za-z]+(?:\s*\([^)]+\))?(?:\s+[A-Z][A-Za-z]+(?:\s*\([^)]+\))?)*)(?=\s+(?:Lane:|Location:))/i) || [])[1] || '';
 
   if (!city) {
     city =
-      (joined.match(/Transmission:\s*Auto\s+(?:Run and Drive|Starts|Stationary)\s+Engine:\s*.+?\s+([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+)*)(?=\s+Location:)/i) || [])[1] || '';
+      (joined.match(/Transmission:\s*Auto\s+(?:RunAndDrive|Run and Drive|Starts|Stationary)\s+Engine:\s*.+?\s+([A-Z][A-Za-z]+(?:\s*\([^)]+\))?(?:\s+[A-Z][A-Za-z]+(?:\s*\([^)]+\))?)*)(?=\s+Location:)/i) || [])[1] || '';
   }
 
-  const functionalStatus =
-    (joined.match(/Transmission:\s*Auto\s+(Run and Drive|Starts|Stationary)\b/i) || [])[1] || '';
+  const functionalStatusRaw =
+    (joined.match(/Transmission:\s*Auto\s+(RunAndDrive|Run and Drive|Starts|Stationary)\b/i) || [])[1] || '';
+
+  const functionalStatus = normalizeFunctionalStatus(functionalStatusRaw);
 
   const normalizedLocation = normalizeLine(location);
   const branding = extractBrandingFromLocation(normalizedLocation);
@@ -142,7 +162,7 @@ function parseBlock(lines) {
     high_pre_bid: normalizeLine(highPreBid),
     buy_now: normalizeLine(buyNow),
     engine: normalizeLine(engine),
-    functional_status: normalizeLine(functionalStatus),
+    functional_status: functionalStatus,
     odometer_km: odometer ? odometer.replace(/,/g, '') : '',
     damage_estimate: normalizeLine(damageEstimate),
     raw_text: joined
