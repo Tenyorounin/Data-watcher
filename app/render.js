@@ -13,50 +13,13 @@ function esc(value) {
     .replace(/"/g, '&quot;');
 }
 
-function field(label, value) {
+function money(value) {
   if (!value) return '';
-  return `<div class="field"><strong>${esc(label)}:</strong> ${esc(value)}</div>`;
+  return `$${value}`;
 }
 
 const raw = fs.readFileSync(inputPath, 'utf8');
 const items = JSON.parse(raw);
-
-const cards = items.map(item => {
-  const title = item.title || 'Untitled';
-
-  return `
-    <article class="card">
-      <div class="card-head">
-        <h2>${esc(title)}</h2>
-        <div class="links">
-          ${item.detail_page ? `<a href="${esc(item.detail_page)}" target="_blank" rel="noopener noreferrer">Detail</a>` : ''}
-          ${item.image_page ? `<a href="${esc(item.image_page)}" target="_blank" rel="noopener noreferrer">Images</a>` : ''}
-        </div>
-      </div>
-
-      <div class="grid">
-        ${field('Search term', item.search_term)}
-        ${field('VIN', item.vin)}
-        ${field('Stock', item.stock_number)}
-        ${field('Sale date', item.sale_datetime)}
-        ${field('Closing date', item.closing_date)}
-        ${field('City', item.city)}
-        ${field('Lane', item.lane)}
-        ${field('Run', item.run)}
-        ${field('Location', item.location)}
-        ${field('Location name', item.location_name)}
-        ${field('Branding', item.branding)}
-        ${field('Status', item.functional_status)}
-        ${field('Engine', item.engine)}
-        ${field('KM', item.odometer_km)}
-        ${field('Damage estimate', item.damage_estimate ? `$${item.damage_estimate}` : '')}
-        ${field('High pre-bid', item.high_pre_bid ? `$${item.high_pre_bid}` : '')}
-        ${field('Buy now', item.buy_now ? `$${item.buy_now}` : '')}
-        ${field('Result page', item.result_page)}
-      </div>
-    </article>
-  `;
-}).join('\n');
 
 const html = `<!doctype html>
 <html lang="en">
@@ -65,73 +28,290 @@ const html = `<!doctype html>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Daily Listings</title>
   <style>
+    :root {
+      --bg: #f3f4f6;
+      --panel: #ffffff;
+      --panel-2: #f9fafb;
+      --text: #111827;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --accent: #111827;
+
+      --green-bg: #dcfce7;
+      --green-text: #166534;
+
+      --yellow-bg: #fef3c7;
+      --yellow-text: #92400e;
+
+      --red-bg: #fee2e2;
+      --red-text: #b91c1c;
+
+      --blue-bg: #dbeafe;
+      --blue-text: #1d4ed8;
+
+      --orange-bg: #ffedd5;
+      --orange-text: #c2410c;
+
+      --repo-bg: #fce7f3;
+      --repo-text: #9d174d;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      color: #111;
+      background: var(--bg);
+      color: var(--text);
     }
 
     header {
-      background: #111;
+      background: var(--accent);
       color: white;
       padding: 16px;
       position: sticky;
       top: 0;
-      z-index: 10;
+      z-index: 50;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
     }
 
     header h1 {
       margin: 0 0 6px 0;
-      font-size: 20px;
+      font-size: 22px;
+      line-height: 1.2;
     }
 
     .meta {
       font-size: 14px;
-      opacity: 0.9;
+      opacity: 0.92;
     }
 
-    main {
+    .toolbar {
       padding: 14px;
       display: grid;
       gap: 12px;
     }
 
-    .card {
-      background: white;
-      border-radius: 12px;
+    .controls {
+      background: var(--panel);
+      border-radius: 14px;
       padding: 14px;
       box-shadow: 0 1px 5px rgba(0,0,0,0.08);
+      border: 1px solid var(--border);
+      display: grid;
+      gap: 12px;
     }
 
-    .card-head {
-      margin-bottom: 10px;
+    .controls-row {
+      display: grid;
+      gap: 10px;
     }
 
-    h2 {
-      margin: 0 0 8px 0;
-      font-size: 18px;
-      line-height: 1.3;
-    }
-
-    .links a {
-      margin-right: 12px;
-      text-decoration: none;
-    }
-
-    .grid {
+    .control {
       display: grid;
       gap: 6px;
     }
 
+    .control label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .control input,
+    .control select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      background: white;
+      color: var(--text);
+    }
+
+    .summary {
+      background: var(--panel);
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.08);
+      border: 1px solid var(--border);
+      display: grid;
+      gap: 8px;
+      font-size: 14px;
+    }
+
+    .summary strong {
+      font-size: 18px;
+    }
+
+    main {
+      padding: 0 14px 18px 14px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .card {
+      background: var(--panel);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.08);
+      border: 1px solid var(--border);
+      display: grid;
+      gap: 12px;
+    }
+
+    .card.repossessed {
+      border: 2px solid var(--repo-text);
+      box-shadow: 0 0 0 3px rgba(157, 23, 77, 0.08);
+    }
+
+    .card-top {
+      display: grid;
+      gap: 10px;
+    }
+
+    .card-title {
+      display: grid;
+      gap: 8px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 19px;
+      line-height: 1.3;
+    }
+
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1;
+      border: 1px solid transparent;
+    }
+
+    .badge.branding-green {
+      background: var(--green-bg);
+      color: var(--green-text);
+    }
+
+    .badge.branding-yellow {
+      background: var(--yellow-bg);
+      color: var(--yellow-text);
+    }
+
+    .badge.branding-red {
+      background: var(--red-bg);
+      color: var(--red-text);
+    }
+
+    .badge.branding-default {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .badge.status-blue {
+      background: var(--blue-bg);
+      color: var(--blue-text);
+    }
+
+    .badge.status-yellow {
+      background: var(--yellow-bg);
+      color: var(--yellow-text);
+    }
+
+    .badge.status-orange {
+      background: var(--orange-bg);
+      color: var(--orange-text);
+    }
+
+    .badge.status-default {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .badge.repo {
+      background: var(--repo-bg);
+      color: var(--repo-text);
+    }
+
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .links a {
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
     .field {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
       font-size: 14px;
       line-height: 1.35;
     }
 
-    @media (min-width: 900px) {
+    .field-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 30px 14px;
+      background: var(--panel);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+    }
+
+    @media (min-width: 800px) {
+      .controls-row {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .controls-row.second {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
       main {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 1200px) {
+      main {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
       }
     }
   </style>
@@ -139,11 +319,316 @@ const html = `<!doctype html>
 <body>
   <header>
     <h1>Daily Listings</h1>
-    <div class="meta">Total items: ${items.length}</div>
+    <div class="meta">Reload this page to see the latest committed data.</div>
   </header>
-  <main>
-    ${cards || '<p>No items found.</p>'}
-  </main>
+
+  <section class="toolbar">
+    <div class="controls">
+      <div class="controls-row">
+        <div class="control">
+          <label for="searchBox">Search</label>
+          <input id="searchBox" type="text" placeholder="Title, VIN, stock, city, location...">
+        </div>
+
+        <div class="control">
+          <label for="sortBy">Sort by</label>
+          <select id="sortBy">
+            <option value="title-asc">Vehicle A–Z</option>
+            <option value="title-desc">Vehicle Z–A</option>
+            <option value="location-asc">Location A–Z</option>
+            <option value="branding-asc">Branding A–Z</option>
+            <option value="status-asc">Status A–Z</option>
+            <option value="damage-desc">Damage estimate high to low</option>
+            <option value="damage-asc">Damage estimate low to high</option>
+            <option value="bid-desc">Pre-bid high to low</option>
+            <option value="bid-asc">Pre-bid low to high</option>
+            <option value="km-asc">KM low to high</option>
+            <option value="km-desc">KM high to low</option>
+          </select>
+        </div>
+
+        <div class="control">
+          <label for="vehicleFilter">Vehicle</label>
+          <select id="vehicleFilter">
+            <option value="">All</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="controls-row second">
+        <div class="control">
+          <label for="locationFilter">Location</label>
+          <select id="locationFilter">
+            <option value="">All</option>
+          </select>
+        </div>
+
+        <div class="control">
+          <label for="statusFilter">Status</label>
+          <select id="statusFilter">
+            <option value="">All</option>
+          </select>
+        </div>
+
+        <div class="control">
+          <label for="brandingFilter">Branding</label>
+          <select id="brandingFilter">
+            <option value="">All</option>
+          </select>
+        </div>
+
+        <div class="control">
+          <label for="repoFilter">Repossessed</label>
+          <select id="repoFilter">
+            <option value="">All</option>
+            <option value="yes">Repossessed only</option>
+            <option value="no">Exclude repossessed</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="summary">
+      <div><strong id="countValue">0</strong> items shown</div>
+      <div id="summaryText">Ready</div>
+    </div>
+  </section>
+
+  <main id="results"></main>
+
+  <script>
+    const items = ${JSON.stringify(items)};
+
+    function safe(value) {
+      return String(value || '').trim();
+    }
+
+    function lower(value) {
+      return safe(value).toLowerCase();
+    }
+
+    function moneyNumber(value) {
+      if (!value) return null;
+      const n = Number(String(value).replace(/,/g, ''));
+      return Number.isFinite(n) ? n : null;
+    }
+
+    function kmNumber(value) {
+      if (!value) return null;
+      const n = Number(String(value).replace(/,/g, ''));
+      return Number.isFinite(n) ? n : null;
+    }
+
+    function vehicleKey(item) {
+      const title = safe(item.title);
+      const m = title.match(/^\\d{4}\\s+(.+)$/);
+      return m ? m[1] : title;
+    }
+
+    function brandingClass(value) {
+      const v = lower(value);
+      if (!v) return 'branding-default';
+      if (v.includes('not branded') || v.includes('clean')) return 'branding-green';
+      if (v.includes('salvage')) return 'branding-yellow';
+      if (v.includes('irreparable') || v.includes('non-repairable') || v.includes('non repairable')) return 'branding-red';
+      return 'branding-default';
+    }
+
+    function statusClass(value) {
+      const v = lower(value);
+      if (v === 'run and drive') return 'status-blue';
+      if (v === 'starts') return 'status-yellow';
+      if (v === 'stationary') return 'status-orange';
+      return 'status-default';
+    }
+
+    function isRepossessed(item) {
+      const combined = [
+        item.title,
+        item.raw_text,
+        item.branding,
+        item.location,
+        item.location_name
+      ].map(safe).join(' ').toLowerCase();
+
+      return combined.includes('repossessed') || combined.includes('repo');
+    }
+
+    function field(label, value) {
+      if (!safe(value)) return '';
+      return \`
+        <div class="field">
+          <span class="field-label">\${label}</span>
+          \${safe(value)}
+        </div>
+      \`;
+    }
+
+    function card(item) {
+      const repo = isRepossessed(item);
+
+      const badges = [
+        item.branding ? \`<span class="badge \${brandingClass(item.branding)}">\${safe(item.branding)}</span>\` : '',
+        item.functional_status ? \`<span class="badge \${statusClass(item.functional_status)}">\${safe(item.functional_status)}</span>\` : '',
+        repo ? '<span class="badge repo">REPOSSESSED</span>' : ''
+      ].filter(Boolean).join('');
+
+      return \`
+        <article class="card \${repo ? 'repossessed' : ''}">
+          <div class="card-top">
+            <div class="card-title">
+              <h2>\${safe(item.title) || 'Untitled'}</h2>
+              <div class="badges">\${badges}</div>
+            </div>
+
+            <div class="links">
+              \${item.detail_page ? \`<a href="\${safe(item.detail_page)}" target="_blank" rel="noopener noreferrer">Detail</a>\` : ''}
+              \${item.image_page ? \`<a href="\${safe(item.image_page)}" target="_blank" rel="noopener noreferrer">Images</a>\` : ''}
+            </div>
+          </div>
+
+          <div class="grid">
+            \${field('VIN', item.vin)}
+            \${field('Stock', item.stock_number)}
+            \${field('Sale date', item.sale_datetime)}
+            \${field('Closing date', item.closing_date)}
+            \${field('City', item.city)}
+            \${field('Lane', item.lane)}
+            \${field('Run', item.run)}
+            \${field('Location', item.location)}
+            \${field('Location name', item.location_name)}
+            \${field('Engine', item.engine)}
+            \${field('KM', item.odometer_km)}
+            \${field('Damage estimate', item.damage_estimate ? '$' + item.damage_estimate : '')}
+            \${field('High pre-bid', item.high_pre_bid ? '$' + item.high_pre_bid : '')}
+            \${field('Buy now', item.buy_now ? '$' + item.buy_now : '')}
+            \${field('Search term', item.search_term)}
+            \${field('Result page', item.result_page)}
+          </div>
+        </article>
+      \`;
+    }
+
+    function uniqueSorted(values) {
+      return [...new Set(values.map(safe).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+    }
+
+    function fillSelect(id, values) {
+      const select = document.getElementById(id);
+      const current = select.value;
+      const options = ['<option value="">All</option>']
+        .concat(values.map(v => \`<option value="\${v.replace(/"/g, '&quot;')}">\${v}</option>\`))
+        .join('');
+      select.innerHTML = options;
+      if (values.includes(current)) {
+        select.value = current;
+      }
+    }
+
+    fillSelect('vehicleFilter', uniqueSorted(items.map(vehicleKey)));
+    fillSelect('locationFilter', uniqueSorted(items.map(i => i.location_name || i.location)));
+    fillSelect('statusFilter', uniqueSorted(items.map(i => i.functional_status)));
+    fillSelect('brandingFilter', uniqueSorted(items.map(i => i.branding)));
+
+    function applyFilters() {
+      const search = lower(document.getElementById('searchBox').value);
+      const sortBy = document.getElementById('sortBy').value;
+      const vehicleFilter = document.getElementById('vehicleFilter').value;
+      const locationFilter = document.getElementById('locationFilter').value;
+      const statusFilter = document.getElementById('statusFilter').value;
+      const brandingFilter = document.getElementById('brandingFilter').value;
+      const repoFilter = document.getElementById('repoFilter').value;
+
+      let filtered = items.filter(item => {
+        const repo = isRepossessed(item);
+
+        if (vehicleFilter && vehicleKey(item) !== vehicleFilter) return false;
+        if (locationFilter && safe(item.location_name || item.location) !== locationFilter) return false;
+        if (statusFilter && safe(item.functional_status) !== statusFilter) return false;
+        if (brandingFilter && safe(item.branding) !== brandingFilter) return false;
+        if (repoFilter === 'yes' && !repo) return false;
+        if (repoFilter === 'no' && repo) return false;
+
+        if (search) {
+          const haystack = [
+            item.title,
+            item.vin,
+            item.stock_number,
+            item.city,
+            item.location,
+            item.location_name,
+            item.branding,
+            item.functional_status,
+            item.engine,
+            item.raw_text
+          ].map(safe).join(' ').toLowerCase();
+
+          if (!haystack.includes(search)) return false;
+        }
+
+        return true;
+      });
+
+      filtered.sort((a, b) => {
+        switch (sortBy) {
+          case 'title-desc':
+            return safe(b.title).localeCompare(safe(a.title));
+          case 'location-asc':
+            return safe(a.location_name || a.location).localeCompare(safe(b.location_name || b.location));
+          case 'branding-asc':
+            return safe(a.branding).localeCompare(safe(b.branding));
+          case 'status-asc':
+            return safe(a.functional_status).localeCompare(safe(b.functional_status));
+          case 'damage-desc':
+            return (moneyNumber(b.damage_estimate) ?? -1) - (moneyNumber(a.damage_estimate) ?? -1);
+          case 'damage-asc':
+            return (moneyNumber(a.damage_estimate) ?? Number.MAX_SAFE_INTEGER) - (moneyNumber(b.damage_estimate) ?? Number.MAX_SAFE_INTEGER);
+          case 'bid-desc':
+            return (moneyNumber(b.high_pre_bid) ?? -1) - (moneyNumber(a.high_pre_bid) ?? -1);
+          case 'bid-asc':
+            return (moneyNumber(a.high_pre_bid) ?? Number.MAX_SAFE_INTEGER) - (moneyNumber(b.high_pre_bid) ?? Number.MAX_SAFE_INTEGER);
+          case 'km-desc':
+            return (kmNumber(b.odometer_km) ?? -1) - (kmNumber(a.odometer_km) ?? -1);
+          case 'km-asc':
+            return (kmNumber(a.odometer_km) ?? Number.MAX_SAFE_INTEGER) - (kmNumber(b.odometer_km) ?? Number.MAX_SAFE_INTEGER);
+          case 'title-asc':
+          default:
+            return safe(a.title).localeCompare(safe(b.title));
+        }
+      });
+
+      const results = document.getElementById('results');
+      const countValue = document.getElementById('countValue');
+      const summaryText = document.getElementById('summaryText');
+
+      countValue.textContent = String(filtered.length);
+
+      summaryText.textContent = [
+        vehicleFilter ? 'Vehicle: ' + vehicleFilter : '',
+        locationFilter ? 'Location: ' + locationFilter : '',
+        statusFilter ? 'Status: ' + statusFilter : '',
+        brandingFilter ? 'Branding: ' + brandingFilter : '',
+        repoFilter === 'yes' ? 'Repossessed only' : '',
+        repoFilter === 'no' ? 'Repossessed excluded' : '',
+        search ? 'Search active' : ''
+      ].filter(Boolean).join(' • ') || 'Showing all items';
+
+      if (!filtered.length) {
+        results.innerHTML = '<div class="empty">No items match the current filters.</div>';
+        return;
+      }
+
+      results.innerHTML = filtered.map(card).join('');
+    }
+
+    ['searchBox', 'sortBy', 'vehicleFilter', 'locationFilter', 'statusFilter', 'brandingFilter', 'repoFilter']
+      .forEach(id => {
+        document.getElementById(id).addEventListener('input', applyFilters);
+        document.getElementById(id).addEventListener('change', applyFilters);
+      });
+
+    applyFilters();
+  </script>
 </body>
 </html>`;
 
