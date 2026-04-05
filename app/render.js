@@ -547,7 +547,6 @@ const html = `<!doctype html>
             \${field('Sale date', item.sale_datetime)}
             \${field('Closing date', item.closing_date)}
             \${field('City', item.city)}
-            \${field('Location', item.location)}
             \${field('Location name', item.location_name)}
             \${field('KM', item.odometer_km)}
             \${field('Damage estimate', item.damage_estimate ? '$' + item.damage_estimate : '')}
