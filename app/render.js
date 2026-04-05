@@ -13,11 +13,6 @@ function esc(value) {
     .replace(/"/g, '&quot;');
 }
 
-function money(value) {
-  if (!value) return '';
-  return `$${value}`;
-}
-
 const raw = fs.readFileSync(inputPath, 'utf8');
 const items = JSON.parse(raw);
 
@@ -70,7 +65,7 @@ const html = `<!doctype html>
     header {
       background: var(--accent);
       color: white;
-      padding: 16px;
+      padding: 12px 14px;
       position: sticky;
       top: 0;
       z-index: 50;
@@ -78,44 +73,44 @@ const html = `<!doctype html>
     }
 
     header h1 {
-      margin: 0 0 6px 0;
-      font-size: 22px;
+      margin: 0 0 4px 0;
+      font-size: 20px;
       line-height: 1.2;
     }
 
     .meta {
-      font-size: 14px;
+      font-size: 13px;
       opacity: 0.92;
     }
 
     .toolbar {
-      padding: 14px;
-      display: grid;
-      gap: 12px;
-    }
-
-    .controls {
-      background: var(--panel);
-      border-radius: 14px;
-      padding: 14px;
-      box-shadow: 0 1px 5px rgba(0,0,0,0.08);
-      border: 1px solid var(--border);
-      display: grid;
-      gap: 12px;
-    }
-
-    .controls-row {
+      padding: 10px;
       display: grid;
       gap: 10px;
     }
 
+    .controls {
+      background: var(--panel);
+      border-radius: 12px;
+      padding: 10px;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.08);
+      border: 1px solid var(--border);
+      display: grid;
+      gap: 10px;
+    }
+
+    .controls-row {
+      display: grid;
+      gap: 8px;
+    }
+
     .control {
       display: grid;
-      gap: 6px;
+      gap: 4px;
     }
 
     .control label {
-      font-size: 13px;
+      font-size: 12px;
       color: var(--muted);
       font-weight: 700;
     }
@@ -124,42 +119,42 @@ const html = `<!doctype html>
     .control select {
       width: 100%;
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-size: 14px;
+      border-radius: 9px;
+      padding: 8px 10px;
+      font-size: 13px;
       background: white;
       color: var(--text);
     }
 
     .summary {
       background: var(--panel);
-      border-radius: 14px;
-      padding: 14px;
+      border-radius: 12px;
+      padding: 10px 12px;
       box-shadow: 0 1px 5px rgba(0,0,0,0.08);
       border: 1px solid var(--border);
       display: grid;
-      gap: 8px;
-      font-size: 14px;
+      gap: 5px;
+      font-size: 13px;
     }
 
     .summary strong {
-      font-size: 18px;
+      font-size: 17px;
     }
 
     main {
-      padding: 0 14px 18px 14px;
+      padding: 0 10px 12px 10px;
       display: grid;
-      gap: 12px;
+      gap: 10px;
     }
 
     .card {
       background: var(--panel);
-      border-radius: 16px;
-      padding: 14px;
+      border-radius: 14px;
+      padding: 10px;
       box-shadow: 0 1px 5px rgba(0,0,0,0.08);
       border: 1px solid var(--border);
       display: grid;
-      gap: 12px;
+      gap: 8px;
     }
 
     .card.repossessed {
@@ -169,32 +164,32 @@ const html = `<!doctype html>
 
     .card-top {
       display: grid;
-      gap: 10px;
+      gap: 6px;
     }
 
     .card-title {
       display: grid;
-      gap: 8px;
+      gap: 6px;
     }
 
     h2 {
       margin: 0;
-      font-size: 19px;
-      line-height: 1.3;
+      font-size: 16px;
+      line-height: 1.25;
     }
 
     .badges {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 6px;
     }
 
     .badge {
       display: inline-flex;
       align-items: center;
       border-radius: 999px;
-      padding: 6px 10px;
-      font-size: 12px;
+      padding: 5px 9px;
+      font-size: 11px;
       font-weight: 700;
       line-height: 1;
       border: 1px solid transparent;
@@ -254,30 +249,60 @@ const html = `<!doctype html>
     .links a {
       text-decoration: none;
       font-weight: 700;
-      font-size: 14px;
+      font-size: 13px;
+    }
+
+    .top-meta-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .mini-field {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 7px 8px;
+      min-width: 0;
+    }
+
+    .mini-label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .mini-value {
+      font-size: 12px;
+      line-height: 1.2;
+      word-break: break-word;
     }
 
     .grid {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 8px;
+      gap: 6px;
     }
 
     .field {
       background: var(--panel-2);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-size: 14px;
-      line-height: 1.35;
+      border-radius: 9px;
+      padding: 8px 10px;
+      font-size: 13px;
+      line-height: 1.3;
     }
 
     .field-label {
       display: block;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       color: var(--muted);
-      margin-bottom: 4px;
+      margin-bottom: 3px;
       text-transform: uppercase;
       letter-spacing: 0.04em;
     }
@@ -285,10 +310,16 @@ const html = `<!doctype html>
     .empty {
       text-align: center;
       color: var(--muted);
-      padding: 30px 14px;
+      padding: 24px 12px;
       background: var(--panel);
-      border-radius: 14px;
+      border-radius: 12px;
       border: 1px solid var(--border);
+    }
+
+    @media (max-width: 520px) {
+      .top-meta-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
     }
 
     @media (min-width: 800px) {
@@ -429,8 +460,13 @@ const html = `<!doctype html>
       const v = lower(value);
       if (!v) return 'branding-default';
       if (v.includes('not branded') || v.includes('clean')) return 'branding-green';
-      if (v.includes('salvage')) return 'branding-yellow';
-      if (v.includes('irreparable') || v.includes('non-repairable') || v.includes('non repairable')) return 'branding-red';
+      if (v.includes('salvage') || v.includes('v.g.a') || v === 'vga') return 'branding-yellow';
+      if (
+        v.includes('irreparable') ||
+        v.includes('irrécupérable') ||
+        v.includes('non-repairable') ||
+        v.includes('non repairable')
+      ) return 'branding-red';
       return 'branding-default';
     }
 
@@ -464,6 +500,16 @@ const html = `<!doctype html>
       \`;
     }
 
+    function miniField(label, value) {
+      if (!safe(value)) return '';
+      return \`
+        <div class="mini-field">
+          <span class="mini-label">\${label}</span>
+          <div class="mini-value">\${safe(value)}</div>
+        </div>
+      \`;
+    }
+
     function card(item) {
       const repo = isRepossessed(item);
 
@@ -471,6 +517,13 @@ const html = `<!doctype html>
         item.branding ? \`<span class="badge \${brandingClass(item.branding)}">\${safe(item.branding)}</span>\` : '',
         item.functional_status ? \`<span class="badge \${statusClass(item.functional_status)}">\${safe(item.functional_status)}</span>\` : '',
         repo ? '<span class="badge repo">REPOSSESSED</span>' : ''
+      ].filter(Boolean).join('');
+
+      const topMeta = [
+        miniField('Stock', item.stock_number),
+        miniField('Lane', item.lane),
+        miniField('Run', item.run),
+        miniField('VIN', item.vin)
       ].filter(Boolean).join('');
 
       return \`
@@ -481,6 +534,8 @@ const html = `<!doctype html>
               <div class="badges">\${badges}</div>
             </div>
 
+            <div class="top-meta-row">\${topMeta}</div>
+
             <div class="links">
               \${item.detail_page ? \`<a href="\${safe(item.detail_page)}" target="_blank" rel="noopener noreferrer">Detail</a>\` : ''}
               \${item.image_page ? \`<a href="\${safe(item.image_page)}" target="_blank" rel="noopener noreferrer">Images</a>\` : ''}
@@ -488,22 +543,16 @@ const html = `<!doctype html>
           </div>
 
           <div class="grid">
-            \${field('VIN', item.vin)}
-            \${field('Stock', item.stock_number)}
             \${field('Sale date', item.sale_datetime)}
             \${field('Closing date', item.closing_date)}
             \${field('City', item.city)}
-            \${field('Lane', item.lane)}
-            \${field('Run', item.run)}
             \${field('Location', item.location)}
             \${field('Location name', item.location_name)}
-            \${field('Engine', item.engine)}
             \${field('KM', item.odometer_km)}
             \${field('Damage estimate', item.damage_estimate ? '$' + item.damage_estimate : '')}
             \${field('High pre-bid', item.high_pre_bid ? '$' + item.high_pre_bid : '')}
             \${field('Buy now', item.buy_now ? '$' + item.buy_now : '')}
             \${field('Search term', item.search_term)}
-            \${field('Result page', item.result_page)}
           </div>
         </article>
       \`;
@@ -559,7 +608,6 @@ const html = `<!doctype html>
             item.location_name,
             item.branding,
             item.functional_status,
-            item.engine,
             item.raw_text
           ].map(safe).join(' ').toLowerCase();
 
@@ -635,4 +683,4 @@ const html = `<!doctype html>
 fs.mkdirSync(outputDir, { recursive: true });
 fs.writeFileSync(outputPath, html, 'utf8');
 
-console.log(`Wrote ${outputPath}`);
+console.log(\`Wrote \${outputPath}\`);
