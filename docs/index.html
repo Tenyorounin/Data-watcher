@@ -5,73 +5,290 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Daily Listings</title>
   <style>
+    :root {
+      --bg: #f3f4f6;
+      --panel: #ffffff;
+      --panel-2: #f9fafb;
+      --text: #111827;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --accent: #111827;
+
+      --green-bg: #dcfce7;
+      --green-text: #166534;
+
+      --yellow-bg: #fef3c7;
+      --yellow-text: #92400e;
+
+      --red-bg: #fee2e2;
+      --red-text: #b91c1c;
+
+      --blue-bg: #dbeafe;
+      --blue-text: #1d4ed8;
+
+      --orange-bg: #ffedd5;
+      --orange-text: #c2410c;
+
+      --repo-bg: #fce7f3;
+      --repo-text: #9d174d;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      color: #111;
+      background: var(--bg);
+      color: var(--text);
     }
 
     header {
-      background: #111;
+      background: var(--accent);
       color: white;
       padding: 16px;
       position: sticky;
       top: 0;
-      z-index: 10;
+      z-index: 50;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
     }
 
     header h1 {
       margin: 0 0 6px 0;
-      font-size: 20px;
+      font-size: 22px;
+      line-height: 1.2;
     }
 
     .meta {
       font-size: 14px;
-      opacity: 0.9;
+      opacity: 0.92;
     }
 
-    main {
+    .toolbar {
       padding: 14px;
       display: grid;
       gap: 12px;
     }
 
-    .card {
-      background: white;
-      border-radius: 12px;
+    .controls {
+      background: var(--panel);
+      border-radius: 14px;
       padding: 14px;
       box-shadow: 0 1px 5px rgba(0,0,0,0.08);
+      border: 1px solid var(--border);
+      display: grid;
+      gap: 12px;
     }
 
-    .card-head {
-      margin-bottom: 10px;
+    .controls-row {
+      display: grid;
+      gap: 10px;
     }
 
-    h2 {
-      margin: 0 0 8px 0;
-      font-size: 18px;
-      line-height: 1.3;
-    }
-
-    .links a {
-      margin-right: 12px;
-      text-decoration: none;
-    }
-
-    .grid {
+    .control {
       display: grid;
       gap: 6px;
     }
 
+    .control label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .control input,
+    .control select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      background: white;
+      color: var(--text);
+    }
+
+    .summary {
+      background: var(--panel);
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.08);
+      border: 1px solid var(--border);
+      display: grid;
+      gap: 8px;
+      font-size: 14px;
+    }
+
+    .summary strong {
+      font-size: 18px;
+    }
+
+    main {
+      padding: 0 14px 18px 14px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .card {
+      background: var(--panel);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.08);
+      border: 1px solid var(--border);
+      display: grid;
+      gap: 12px;
+    }
+
+    .card.repossessed {
+      border: 2px solid var(--repo-text);
+      box-shadow: 0 0 0 3px rgba(157, 23, 77, 0.08);
+    }
+
+    .card-top {
+      display: grid;
+      gap: 10px;
+    }
+
+    .card-title {
+      display: grid;
+      gap: 8px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 19px;
+      line-height: 1.3;
+    }
+
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1;
+      border: 1px solid transparent;
+    }
+
+    .badge.branding-green {
+      background: var(--green-bg);
+      color: var(--green-text);
+    }
+
+    .badge.branding-yellow {
+      background: var(--yellow-bg);
+      color: var(--yellow-text);
+    }
+
+    .badge.branding-red {
+      background: var(--red-bg);
+      color: var(--red-text);
+    }
+
+    .badge.branding-default {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .badge.status-blue {
+      background: var(--blue-bg);
+      color: var(--blue-text);
+    }
+
+    .badge.status-yellow {
+      background: var(--yellow-bg);
+      color: var(--yellow-text);
+    }
+
+    .badge.status-orange {
+      background: var(--orange-bg);
+      color: var(--orange-text);
+    }
+
+    .badge.status-default {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .badge.repo {
+      background: var(--repo-bg);
+      color: var(--repo-text);
+    }
+
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .links a {
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
     .field {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
       font-size: 14px;
       line-height: 1.35;
     }
 
-    @media (min-width: 900px) {
+    .field-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 30px 14px;
+      background: var(--panel);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+    }
+
+    @media (min-width: 800px) {
+      .controls-row {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .controls-row.second {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
       main {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 1200px) {
+      main {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
       }
     }
   </style>
@@ -79,1289 +296,315 @@
 <body>
   <header>
     <h1>Daily Listings</h1>
-    <div class="meta">Total items: 40</div>
+    <div class="meta">Reload this page to see the latest committed data.</div>
   </header>
-  <main>
-    
-    <article class="card">
-      <div class="card-head">
-        <h2>2025 TESLA CYBERTRUCK AWD</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2850677" target="_blank" rel="noopener noreferrer">Detail</a>
-          
+
+  <section class="toolbar">
+    <div class="controls">
+      <div class="controls-row">
+        <div class="control">
+          <label for="searchBox">Search</label>
+          <input id="searchBox" type="text" placeholder="Title, VIN, stock, city, location...">
+        </div>
+
+        <div class="control">
+          <label for="sortBy">Sort by</label>
+          <select id="sortBy">
+            <option value="title-asc">Vehicle A–Z</option>
+            <option value="title-desc">Vehicle Z–A</option>
+            <option value="location-asc">Location A–Z</option>
+            <option value="branding-asc">Branding A–Z</option>
+            <option value="status-asc">Status A–Z</option>
+            <option value="damage-desc">Damage estimate high to low</option>
+            <option value="damage-asc">Damage estimate low to high</option>
+            <option value="bid-desc">Pre-bid high to low</option>
+            <option value="bid-asc">Pre-bid low to high</option>
+            <option value="km-asc">KM low to high</option>
+            <option value="km-desc">KM high to low</option>
+          </select>
+        </div>
+
+        <div class="control">
+          <label for="vehicleFilter">Vehicle</label>
+          <select id="vehicleFilter">
+            <option value="">All</option>
+          </select>
         </div>
       </div>
 
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> Cybertruck</div>
-        <div class="field"><strong>VIN:</strong> 7G2CEHED7SA******</div>
-        <div class="field"><strong>Stock:</strong> 12465528</div>
-        <div class="field"><strong>Sale date:</strong> Mon, Apr 06, 09:00 AM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Montreal West</div>
-        <div class="field"><strong>Lane:</strong> 3</div>
-        <div class="field"><strong>Run:</strong> 18</div>
-        <div class="field"><strong>Location:</strong> IAA Montreal West ON-SALVAGE</div>
-        <div class="field"><strong>Location name:</strong> IAA Montreal West ON</div>
-        <div class="field"><strong>Branding:</strong> SALVAGE</div>
-        <div class="field"><strong>Status:</strong> Stationary</div>
-        <div class="field"><strong>Engine:</strong> U U</div>
-        
-        <div class="field"><strong>Damage estimate:</strong> $50,553.76</div>
-        <div class="field"><strong>High pre-bid:</strong> $3,200.00</div>
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
+      <div class="controls-row second">
+        <div class="control">
+          <label for="locationFilter">Location</label>
+          <select id="locationFilter">
+            <option value="">All</option>
+          </select>
+        </div>
 
-    <article class="card">
-      <div class="card-head">
-        <h2>2025 POLESTAR 2</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2895505" target="_blank" rel="noopener noreferrer">Detail</a>
-          
+        <div class="control">
+          <label for="statusFilter">Status</label>
+          <select id="statusFilter">
+            <option value="">All</option>
+          </select>
+        </div>
+
+        <div class="control">
+          <label for="brandingFilter">Branding</label>
+          <select id="brandingFilter">
+            <option value="">All</option>
+          </select>
+        </div>
+
+        <div class="control">
+          <label for="repoFilter">Repossessed</label>
+          <select id="repoFilter">
+            <option value="">All</option>
+            <option value="yes">Repossessed only</option>
+            <option value="no">Exclude repossessed</option>
+          </select>
         </div>
       </div>
+    </div>
 
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> Polestar</div>
-        <div class="field"><strong>VIN:</strong> YSMFF3KA4SL******</div>
-        <div class="field"><strong>Stock:</strong> 12507351</div>
-        <div class="field"><strong>Sale date:</strong> Tue, Apr 07, 09:00 AM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Toronto West</div>
-        <div class="field"><strong>Lane:</strong> 5</div>
-        <div class="field"><strong>Run:</strong> 36</div>
-        <div class="field"><strong>Location:</strong> IAA Toronto West ON-NOT BRANDED</div>
-        <div class="field"><strong>Location name:</strong> IAA Toronto West ON</div>
-        <div class="field"><strong>Branding:</strong> NOT BRANDED</div>
-        <div class="field"><strong>Status:</strong> Stationary</div>
-        <div class="field"><strong>Engine:</strong> Electric</div>
-        <div class="field"><strong>KM:</strong> 5913</div>
-        <div class="field"><strong>Damage estimate:</strong> $39,449.13</div>
-        
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
+    <div class="summary">
+      <div><strong id="countValue">0</strong> items shown</div>
+      <div id="summaryText">Ready</div>
+    </div>
+  </section>
 
-    <article class="card">
-      <div class="card-head">
-        <h2>2023 POLESTAR 2 LONG RANGE DUAL MOTOR/LONG RANGE DUAL MOTOR PLUS</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2955889" target="_blank" rel="noopener noreferrer">Detail</a>
-          
+  <main id="results"></main>
+
+  <script>
+    const items = [{"search_term":"Cybertruck","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2850677","image_page":"","title":"2025 TESLA CYBERTRUCK AWD","vin":"7G2CEHED7SA******","stock_number":"12465528","sale_datetime":"Mon, Apr 06, 09:00 AM EDT","closing_date":"","city":"Montreal West","lane":"3","run":"18","location":"IAA Montreal West ON-SALVAGE","location_name":"IAA Montreal West ON","branding":"SALVAGE","high_pre_bid":"3,200.00","buy_now":"","engine":"U U","functional_status":"Stationary","odometer_km":"","damage_estimate":"50,553.76","raw_text":"2025 TESLA CYBERTRUCK AWD VIN #: 7G2CEHED7SA****** Stock #: 12465528 Front, Front Window Damage Estimate: $50,553.76 Unknown Transmission: Auto Stationary Engine: U U Montreal West Lane: 3 Run: 18 Location: IAA Montreal West ON-SALVAGE Mon, Apr 06, 09:00 AM EDT High Pre-Bid: $3,200.00 Prebid available"},{"search_term":"Polestar","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2895505","image_page":"","title":"2025 POLESTAR 2","vin":"YSMFF3KA4SL******","stock_number":"12507351","sale_datetime":"Tue, Apr 07, 09:00 AM EDT","closing_date":"","city":"Toronto West","lane":"5","run":"36","location":"IAA Toronto West ON-NOT BRANDED","location_name":"IAA Toronto West ON","branding":"NOT BRANDED","high_pre_bid":"","buy_now":"","engine":"Electric","functional_status":"Stationary","odometer_km":"5913","damage_estimate":"39,449.13","raw_text":"2025 POLESTAR 2 VIN #: YSMFF3KA4SL****** Stock #: 12507351 Right Side, Front Damage Estimate: $39,449.13 5913 Km Transmission: Auto Stationary Engine: Electric Toronto West Lane: 5 Run: 36 Location: IAA Toronto West ON-NOT BRANDED Tue, Apr 07, 09:00 AM EDT Prebid available"},{"search_term":"Polestar","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2955889","image_page":"","title":"2023 POLESTAR 2 LONG RANGE DUAL MOTOR/LONG RANGE DUAL MOTOR PLUS","vin":"YSMED3KA3PL******","stock_number":"12562542","sale_datetime":"","closing_date":"Fri, Apr 10, 2026","city":"Hamilton","lane":"","run":"","location":"IAA Hamilton ON-NOT BRANDED","location_name":"IAA Hamilton ON","branding":"NOT BRANDED","high_pre_bid":"","buy_now":"11,000.00","engine":"Electric","functional_status":"Stationary","odometer_km":"","damage_estimate":"15,958.88","raw_text":"2023 POLESTAR 2 LONG RANGE DUAL MOTOR/LONG RANGE DUAL MOTOR PLUS VIN #: YSMED3KA3PL****** Stock #: 12562542 Front, Left Side Damage Estimate: $15,958.88 Unknown Transmission: Auto Stationary Engine: Electric Hamilton Location: IAA Hamilton ON-NOT BRANDED Closing Date: Fri, Apr 10, 2026 Buy Now: $11,000.00"},{"search_term":"Polestar","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/30073865","image_page":"","title":"2022 POLESTAR 2","vin":"LPSED3KAXNL******","stock_number":"40061269","sale_datetime":"Wed, Apr 08, 01:00 PM EDT","closing_date":"","city":"Fraser Valley","lane":"3","run":"92","location":"Fraser Valley SALVAGE","location_name":"Fraser Valley","branding":"SALVAGE","high_pre_bid":"","buy_now":"","engine":"U X","functional_status":"Stationary","odometer_km":"106386","damage_estimate":"","raw_text":"2022 POLESTAR 2 VIN #: LPSED3KAXNL****** Stock #: 40061269 Left Side, Left Front 106386 Km Transmission: Auto Stationary Engine: U X Fraser Valley Lane: 3 Run: 92 Location: Fraser Valley SALVAGE Wed, Apr 08, 01:00 PM EDT Prebid available"},{"search_term":"Polestar","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2965060","image_page":"","title":"2021 POLESTAR 2 LAUNCH EDITION","vin":"LPSED3KA0ML******","stock_number":"12570821","sale_datetime":"Wed, Apr 08, 09:00 AM EDT","closing_date":"","city":"Hamilton","lane":"2","run":"178","location":"IAA Hamilton ON-SALVAGE","location_name":"IAA Hamilton ON","branding":"SALVAGE","high_pre_bid":"","buy_now":"","engine":"Electric","functional_status":"Stationary","odometer_km":"77810","damage_estimate":"18,483.59","raw_text":"2021 POLESTAR 2 LAUNCH EDITION VIN #: LPSED3KA0ML****** Stock #: 12570821 Rear, Right Rear Damage Estimate: $18,483.59 77810 Km Transmission: Auto Stationary Engine: Electric Hamilton Lane: 2 Run: 178 Location: IAA Hamilton ON-SALVAGE Wed, Apr 08, 09:00 AM EDT Prebid available"},{"search_term":"Lightning","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/30073393","image_page":"","title":"2022 FORD F150 LIGHTNING PRO/LIGHTNING XLT/LIGHTNING LARIAT/LIGHTNING PLATINUM","vin":"1FT6W1EV3NW******","stock_number":"40053196","sale_datetime":"Wed, Apr 08, 01:00 PM EDT","closing_date":"","city":"Lower Mainland","lane":"1","run":"30","location":"Lower Mainland SALVAGE","location_name":"Lower Mainland","branding":"SALVAGE","high_pre_bid":"","buy_now":"","engine":"Electric","functional_status":"Stationary","odometer_km":"","damage_estimate":"","raw_text":"2022 FORD F150 LIGHTNING PRO/LIGHTNING XLT/LIGHTNING LARIAT/LIGHTNING PLATINUM VIN #: 1FT6W1EV3NW****** Stock #: 40053196 Right Front, Structural Unknown Transmission: Auto Stationary Engine: Electric Lower Mainland Lane: 1 Run: 30 Location: Lower Mainland SALVAGE Wed, Apr 08, 01:00 PM EDT Prebid available"},{"search_term":"Ev9","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2909669","image_page":"","title":"2025 KIA EV9 LAND","vin":"KNDAFFS57S6******","stock_number":"12520282","sale_datetime":"Tue, Apr 07, 09:00 AM EDT","closing_date":"","city":"Toronto (Oshawa)","lane":"4","run":"40","location":"IAA Toronto ON-SALVAGE","location_name":"IAA Toronto ON","branding":"SALVAGE","high_pre_bid":"","buy_now":"","engine":"Electric","functional_status":"Starts","odometer_km":"48749","damage_estimate":"46,207.93","raw_text":"2025 KIA EV9 LAND VIN #: KNDAFFS57S6****** Stock #: 12520282 Front Damage Estimate: $46,207.93 48749 Km Transmission: Auto Starts Engine: Electric Toronto (Oshawa) Lane: 4 Run: 40 Location: IAA Toronto ON-SALVAGE Tue, Apr 07, 09:00 AM EDT Prebid available"},{"search_term":"ev","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2888734","image_page":"","title":"2026 KIA NIRO EV WIND/WIND+","vin":"KNDCP3L11T5******","stock_number":"12500962","sale_datetime":"Mon, Apr 06, 09:00 AM EDT","closing_date":"","city":"Montreal East","lane":"1","run":"58","location":"IAA Montreal Laval Gate 2 QC-V.G.A","location_name":"IAA Montreal Laval Gate 2 QC","branding":"V.G.A","high_pre_bid":"2,500.00","buy_now":"","engine":"Electric","functional_status":"Run and Drive","odometer_km":"957","damage_estimate":"27,031.43","raw_text":"2026 KIA NIRO EV WIND/WIND+ VIN #: KNDCP3L11T5****** Stock #: 12500962 Front Damage Estimate: $27,031.43 957 Km Transmission: Auto RunAndDrive Engine: Electric Montreal East Lane: 1 Run: 58 Location: IAA Montreal Laval Gate 2 QC-V.G.A Mon, Apr 06, 09:00 AM EDT High Pre-Bid: $2,500.00 Prebid available"},{"search_term":"ev","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2912695","image_page":"","title":"2025 CHEVROLET EQUINOX EV RS","vin":"3GN7DSRR0SS******","stock_number":"12523132","sale_datetime":"","closing_date":"","city":"","lane":"","run":"","location":"","location_name":"","branding":"","high_pre_bid":"","buy_now":"","engine":"","functional_status":"","odometer_km":"","damage_estimate":"39,068.16","raw_text":"2025 CHEVROLET EQUINOX EV RS VIN #: 3GN7DSRR0SS****** Stock #: 12523132 Right Side Damage Estimate: $39,068.16"},{"search_term":"ev","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2927047","image_page":"","title":"2087 Km","vin":"","stock_number":"","sale_datetime":"Mon, Apr 06, 09:00 AM EDT","closing_date":"","city":"Montreal East","lane":"1","run":"110","location":"IAA Montreal Laval Gate 2 QC-V.G.A","location_name":"IAA Montreal Laval Gate 2 QC","branding":"V.G.A","high_pre_bid":"4,100.00","buy_now":"","engine":"Electric","functional_status":"Stationary","odometer_km":"2087","damage_estimate":"","raw_text":"2087 Km Transmission: Auto Stationary Engine: Electric Montreal East Lane: 1 Run: 110 Location: IAA Montreal Laval Gate 2 QC-V.G.A Mon, Apr 06, 09:00 AM EDT High Pre-Bid: $4,100.00 Prebid available"},{"search_term":"ev","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2885997","image_page":"","title":"2025 KIA NIRO EV WIND/WIND+","vin":"KNDCP3L11S5******","stock_number":"12536396","sale_datetime":"Tue, Apr 07, 09:00 AM EDT","closing_date":"","city":"Montreal East","lane":"1","run":"17","location":"IAA Montreal Laval QC-V.G.A","location_name":"IAA Montreal Laval QC","branding":"V.G.A","high_pre_bid":"1,750.00","buy_now":"","engine":"Electric","functional_status":"Starts","odometer_km":"14660","damage_estimate":"30,161.93","raw_text":"2025 KIA NIRO EV WIND/WIND+ VIN #: KNDCP3L11S5****** Stock #: 12536396 Front, Suspension Damage Estimate: $30,161.93 14660 Km Transmission: Auto Starts Engine: Electric Montreal East Lane: 1 Run: 17 Location: IAA Montreal Laval QC-V.G.A Tue, Apr 07, 09:00 AM EDT High Pre-Bid: $1,750.00 Prebid available"},{"search_term":"ev","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2930682","image_page":"","title":"2025 CHEVROLET BLAZER EV RS AWD","vin":"3GNKDJRJ7SS******","stock_number":"12498385","sale_datetime":"Mon, Apr 06, 09:00 AM EDT","closing_date":"","city":"Montreal East","lane":"1","run":"59","location":"IAA Montreal Laval QC-V.G.A","location_name":"IAA Montreal Laval QC","branding":"V.G.A","high_pre_bid":"12,600.00","buy_now":"","engine":"Electric","functional_status":"Starts","odometer_km":"2924","damage_estimate":"29,854.53","raw_text":"2025 CHEVROLET BLAZER EV RS AWD VIN #: 3GNKDJRJ7SS****** Stock #: 12498385 Rear, Rear Window Damage Estimate: $29,854.53 2924 Km Transmission: Auto Starts Engine: Electric Montreal East Lane: 1 Run: 59 Location: IAA Montreal Laval QC-V.G.A Mon, Apr 06, 09:00 AM EDT High Pre-Bid: $12,600.00 Prebid available"},{"search_term":"ev","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2954326","image_page":"","title":"2025 CHEVROLET EQUINOX EV RS","vin":"3GN7DSRP1SS******","stock_number":"12539832","sale_datetime":"Mon, Apr 06, 09:00 AM EDT","closing_date":"","city":"Montreal East","lane":"1","run":"130","location":"IAA Montreal Laval QC-V.G.A","location_name":"IAA Montreal Laval QC","branding":"V.G.A","high_pre_bid":"","buy_now":"","engine":"Electric","functional_status":"Stationary","odometer_km":"16817","damage_estimate":"37,533.93","raw_text":"2025 CHEVROLET EQUINOX EV RS VIN #: 3GN7DSRP1SS****** Stock #: 12539832 Front Damage Estimate: $37,533.93 16817 Km Transmission: Auto Stationary Engine: Electric Montreal East Lane: 1 Run: 130 Location: IAA Montreal Laval QC-V.G.A Mon, Apr 06, 09:00 AM EDT Prebid available"},{"search_term":"ev","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2886786","image_page":"","title":"2025 CHEVROLET EQUINOX EV LT","vin":"3GN7DLRR9SS******","stock_number":"12561104","sale_datetime":"Tue, Apr 07, 09:00 AM EDT","closing_date":"","city":"Montreal East","lane":"1","run":"32","location":"IAA Montreal Laval QC-V.G.A","location_name":"IAA Montreal Laval QC","branding":"V.G.A","high_pre_bid":"","buy_now":"","engine":"Electric","functional_status":"Run and Drive","odometer_km":"15974","damage_estimate":"25,742.51","raw_text":"2025 CHEVROLET EQUINOX EV LT VIN #: 3GN7DLRR9SS****** Stock #: 12561104 Rear Damage Estimate: $25,742.51 15974 Km Transmission: Auto RunAndDrive Engine: Electric Montreal East Lane: 1 Run: 32 Location: IAA Montreal Laval QC-V.G.A Tue, Apr 07, 09:00 AM EDT Prebid available"},{"search_term":"ev","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2952516","image_page":"","title":"2024 CHEVROLET BLAZER EV","vin":"3GNKDBRJ9RS******","stock_number":"12499168","sale_datetime":"Mon, Apr 06, 09:00 AM EDT","closing_date":"","city":"Montreal West","lane":"3","run":"88","location":"IAA Montreal West QC-V.G.A","location_name":"IAA Montreal West QC","branding":"V.G.A","high_pre_bid":"","buy_now":"","engine":"N","functional_status":"Stationary","odometer_km":"37065","damage_estimate":"23,599.75","raw_text":"2024 CHEVROLET BLAZER EV VIN #: 3GNKDBRJ9RS****** Stock #: 12499168 Front, Left Front Damage Estimate: $23,599.75 37065 Km Transmission: Auto Stationary Engine: N Montreal West Lane: 3 Run: 88 Location: IAA Montreal West QC-V.G.A Mon, Apr 06, 09:00 AM EDT Prebid available"},{"search_term":"ev","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/30057678","image_page":"","title":"2023 CHEVROLET BOLT EV","vin":"1G1FW6S09P4******","stock_number":"12559464","sale_datetime":"Tue, Apr 07, 09:00 AM EDT","closing_date":"","city":"NX Montreal West","lane":"3","run":"75","location":"IAA Montreal West QC-V.G.A","location_name":"IAA Montreal West QC","branding":"V.G.A","high_pre_bid":"600.00","buy_now":"","engine":"U","functional_status":"Stationary","odometer_km":"35991","damage_estimate":"27,062.13","raw_text":"2023 CHEVROLET BOLT EV VIN #: 1G1FW6S09P4****** Stock #: 12559464 Right Front Damage Estimate: $27,062.13 35991 Km Transmission: Auto Stationary Engine: U NX Montreal West Lane: 3 Run: 75 Location: IAA Montreal West QC-V.G.A Tue, Apr 07, 09:00 AM EDT High Pre-Bid: $600.00 Prebid available"},{"search_term":"ev","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2980631","image_page":"","title":"2021 CHEVROLET BOLT EV PREMIER","vin":"1G1FZ6S09M4******","stock_number":"40044390","sale_datetime":"Wed, Apr 08, 01:00 PM EDT","closing_date":"","city":"Lower Mainland","lane":"2","run":"19","location":"Lower Mainland NON-REPAIRABLE","location_name":"Lower Mainland NON","branding":"REPAIRABLE","high_pre_bid":"1,050.00","buy_now":"","engine":"Electric","functional_status":"Run and Drive","odometer_km":"71747","damage_estimate":"","raw_text":"2021 CHEVROLET BOLT EV PREMIER VIN #: 1G1FZ6S09M4****** Stock #: 40044390 Front, Right Front 71747 Km Transmission: Auto RunAndDrive Engine: Electric Lower Mainland Lane: 2 Run: 19 Location: Lower Mainland NON-REPAIRABLE Wed, Apr 08, 01:00 PM EDT High Pre-Bid: $1,050.00 Prebid available"},{"search_term":"ev","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2972478","image_page":"","title":"2021 CHEVROLET BOLT EV LT","vin":"1G1FY6S08M4******","stock_number":"12563108X","sale_datetime":"Tue, Apr 07, 09:00 AM EDT","closing_date":"","city":"Quebec City","lane":"2","run":"36","location":"IAA Quebec City QC-IRRECUPERABLE","location_name":"IAA Quebec City QC","branding":"IRRECUPERABLE","high_pre_bid":"","buy_now":"","engine":"Electric","functional_status":"Stationary","odometer_km":"79650","damage_estimate":"0.00","raw_text":"2021 CHEVROLET BOLT EV LT VIN #: 1G1FY6S08M4****** Stock #: 12563108X Total Burn, Total Burn Damage Estimate: $0.00 79650 Km Transmission: Auto Stationary Engine: Electric Quebec City Lane: 2 Run: 36 Location: IAA Quebec City QC-IRRECUPERABLE Tue, Apr 07, 09:00 AM EDT Prebid available"},{"search_term":"ioniq","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2876359","image_page":"","title":"2017 HYUNDAI IONIQ EV LIMITED","vin":"KMHC05LH0HU******","stock_number":"12489426","sale_datetime":"Mon, Apr 06, 09:00 AM EDT","closing_date":"","city":"Toronto (Oshawa)","lane":"3","run":"86","location":"IAA Toronto ON-SALVAGE","location_name":"IAA Toronto ON","branding":"SALVAGE","high_pre_bid":"","buy_now":"","engine":"Electric","functional_status":"Stationary","odometer_km":"119091","damage_estimate":"32,537.06","raw_text":"2017 HYUNDAI IONIQ EV LIMITED VIN #: KMHC05LH0HU****** Stock #: 12489426 Front Damage Estimate: $32,537.06 119091 Km Transmission: Auto Stationary Engine: Electric Toronto (Oshawa) Lane: 3 Run: 86 Location: IAA Toronto ON-SALVAGE Mon, Apr 06, 09:00 AM EDT Prebid available"},{"search_term":"ev","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2980633","image_page":"","title":"2017 HYUNDAI IONIQ EV LIMITED","vin":"KMHC05LH0HU******","stock_number":"12489426","sale_datetime":"Mon, Apr 06, 09:00 AM EDT","closing_date":"","city":"Toronto (Oshawa)","lane":"3","run":"86","location":"IAA Toronto ON-SALVAGE","location_name":"IAA Toronto ON","branding":"SALVAGE","high_pre_bid":"","buy_now":"","engine":"Electric","functional_status":"Stationary","odometer_km":"119091","damage_estimate":"32,537.06","raw_text":"2017 HYUNDAI IONIQ EV LIMITED VIN #: KMHC05LH0HU****** Stock #: 12489426 Front Damage Estimate: $32,537.06 119091 Km Transmission: Auto Stationary Engine: Electric Toronto (Oshawa) Lane: 3 Run: 86 Location: IAA Toronto ON-SALVAGE Mon, Apr 06, 09:00 AM EDT Prebid available"},{"search_term":"ioniq","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2958883","image_page":"","title":"2026 HYUNDAI IONIQ 9 PREFERRED AWD+ WITH ULTIMATE CALLIGRAPHY PACKAGE","vin":"KM8MYFS59TA******","stock_number":"12565254","sale_datetime":"Wed, Apr 08, 09:00 AM EDT","closing_date":"","city":"Toronto (Oshawa)","lane":"3","run":"22","location":"IAA Toronto ON-SALVAGE","location_name":"IAA Toronto ON","branding":"SALVAGE","high_pre_bid":"","buy_now":"","engine":"Electric","functional_status":"Stationary","odometer_km":"4148","damage_estimate":"70,547.54","raw_text":"2026 HYUNDAI IONIQ 9 PREFERRED AWD+ WITH ULTIMATE CALLIGRAPHY PACKAGE VIN #: KM8MYFS59TA****** Stock #: 12565254 Front Damage Estimate: $70,547.54 4148 Km Transmission: Auto Stationary Engine: Electric Toronto (Oshawa) Lane: 3 Run: 22 Location: IAA Toronto ON-SALVAGE Wed, Apr 08, 09:00 AM EDT Prebid available"},{"search_term":"ioniq","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2950094","image_page":"","title":"2024 HYUNDAI IONIQ 6 LIMITED","vin":"KMHM54AC6RA******","stock_number":"12557254","sale_datetime":"Tue, Apr 07, 09:00 AM EDT","closing_date":"","city":"Hamilton","lane":"2","run":"146","location":"IAA Hamilton ON-NOT BRANDED","location_name":"IAA Hamilton ON","branding":"NOT BRANDED","high_pre_bid":"","buy_now":"","engine":"Electric","functional_status":"Stationary","odometer_km":"147815","damage_estimate":"6,565.94","raw_text":"2024 HYUNDAI IONIQ 6 LIMITED VIN #: KMHM54AC6RA****** Stock #: 12557254 Theft, Left Side Damage Estimate: $6,565.94 147815 Km Transmission: Auto Stationary Engine: Electric Hamilton Lane: 2 Run: 146 Location: IAA Hamilton ON-NOT BRANDED Tue, Apr 07, 09:00 AM EDT Prebid available"},{"search_term":"ioniq","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2868547","image_page":"","title":"2024 HYUNDAI IONIQ 5 LIMITED/DISNEY 100 PLATINUM EDITION","vin":"KM8KRDDF9RU******","stock_number":"12482159","sale_datetime":"Tue, Apr 07, 08:30 AM EDT","closing_date":"","city":"Moncton","lane":"2","run":"52","location":"IAA Moncton ON-NOT BRANDED","location_name":"IAA Moncton ON","branding":"NOT BRANDED","high_pre_bid":"20,100.00","buy_now":"","engine":"N","functional_status":"Run and Drive","odometer_km":"25966","damage_estimate":"","raw_text":"2024 HYUNDAI IONIQ 5 LIMITED/DISNEY 100 PLATINUM EDITION VIN #: KM8KRDDF9RU****** Stock #: 12482159 Front, Front 25966 Km Transmission: Auto RunAndDrive Engine: N Moncton Lane: 2 Run: 52 Location: IAA Moncton ON-NOT BRANDED Tue, Apr 07, 08:30 AM EDT High Pre-Bid: $20,100.00 Prebid available"},{"search_term":"ioniq","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2880608","image_page":"","title":"2024 HYUNDAI IONIQ 6 PREFERRED LONG RANGE","vin":"KMHM34ACXRA******","stock_number":"12493353","sale_datetime":"Mon, Apr 06, 09:00 AM EDT","closing_date":"","city":"Montreal East","lane":"1","run":"72","location":"IAA Montreal Laval QC-V.G.A","location_name":"IAA Montreal Laval QC","branding":"V.G.A","high_pre_bid":"3,400.00","buy_now":"","engine":"Electric","functional_status":"Starts","odometer_km":"23031","damage_estimate":"31,324.03","raw_text":"2024 HYUNDAI IONIQ 6 PREFERRED LONG RANGE VIN #: KMHM34ACXRA****** Stock #: 12493353 Front, Interior Damage Damage Estimate: $31,324.03 23031 Km Transmission: Auto Starts Engine: Electric Montreal East Lane: 1 Run: 72 Location: IAA Montreal Laval QC-V.G.A Mon, Apr 06, 09:00 AM EDT High Pre-Bid: $3,400.00 Prebid available"},{"search_term":"ioniq","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2896933","image_page":"","title":"2024 HYUNDAI IONIQ 5 PREFERRED LONG RANGE","vin":"KM8KN4DE3RU******","stock_number":"12508671","sale_datetime":"Mon, Apr 06, 09:00 AM EDT","closing_date":"","city":"Montreal East","lane":"1","run":"92","location":"IAA Montreal Laval Gate 2 QC-V.G.A","location_name":"IAA Montreal Laval Gate 2 QC","branding":"V.G.A","high_pre_bid":"3,400.00","buy_now":"","engine":"Electric","functional_status":"Starts","odometer_km":"33998","damage_estimate":"28,532.11","raw_text":"2024 HYUNDAI IONIQ 5 PREFERRED LONG RANGE VIN #: KM8KN4DE3RU****** Stock #: 12508671 Front, Rear Damage Estimate: $28,532.11 33998 Km Transmission: Auto Starts Engine: Electric Montreal East Lane: 1 Run: 92 Location: IAA Montreal Laval Gate 2 QC-V.G.A Mon, Apr 06, 09:00 AM EDT High Pre-Bid: $3,400.00 Prebid available"},{"search_term":"ioniq","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2898992","image_page":"","title":"2024 HYUNDAI IONIQ 5 PREFERRED LONG RANGE","vin":"KM8KN4DE8RU******","stock_number":"12510562","sale_datetime":"Mon, Apr 06, 09:00 AM EDT","closing_date":"","city":"Quebec City","lane":"2","run":"30","location":"IAA Quebec City QC-V.G.A","location_name":"IAA Quebec City QC","branding":"V.G.A","high_pre_bid":"4,200.00","buy_now":"","engine":"Electric","functional_status":"Stationary","odometer_km":"24324","damage_estimate":"59,346.50","raw_text":"2024 HYUNDAI IONIQ 5 PREFERRED LONG RANGE VIN #: KM8KN4DE8RU****** Stock #: 12510562 Possible Mech. Damage Estimate: $59,346.50 24324 Km Transmission: Auto Stationary Engine: Electric Quebec City Lane: 2 Run: 30 Location: IAA Quebec City QC-V.G.A Mon, Apr 06, 09:00 AM EDT High Pre-Bid: $4,200.00 Prebid available"},{"search_term":"ioniq","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2971018","image_page":"","title":"2019 HYUNDAI IONIQ HYBRID PREFERRED","vin":"KMHC85LC4KU******","stock_number":"12576192","sale_datetime":"Tue, Apr 07, 09:00 AM EDT","closing_date":"","city":"Montreal East","lane":"1","run":"83","location":"IAA Montreal Laval Gate 2 QC-V.G.A","location_name":"IAA Montreal Laval Gate 2 QC","branding":"V.G.A","high_pre_bid":"","buy_now":"","engine":"1.6L I-4 DI, DOHC, VVT, 104HP","functional_status":"Run and Drive","odometer_km":"199043","damage_estimate":"13,991.92","raw_text":"2019 HYUNDAI IONIQ HYBRID PREFERRED VIN #: KMHC85LC4KU****** Stock #: 12576192 Rear, Right Side Damage Estimate: $13,991.92 199043 Km Transmission: Auto RunAndDrive Engine: 1.6L I-4 DI, DOHC, VVT, 104HP Montreal East Lane: 1 Run: 83 Location: IAA Montreal Laval Gate 2 QC-V.G.A Tue, Apr 07, 09:00 AM EDT Prebid available"},{"search_term":"ioniq","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2933154","image_page":"","title":"2019 HYUNDAI IONIQ PREFERRED","vin":"KMHC85LH1KU******","stock_number":"12541941","sale_datetime":"Mon, Apr 06, 09:00 AM EDT","closing_date":"","city":"Montreal East","lane":"1","run":"14","location":"IAA Montreal Laval QC-V.G.A","location_name":"IAA Montreal Laval QC","branding":"V.G.A","high_pre_bid":"","buy_now":"","engine":"Electric","functional_status":"Stationary","odometer_km":"162698","damage_estimate":"9,157.40","raw_text":"2019 HYUNDAI IONIQ PREFERRED VIN #: KMHC85LH1KU****** Stock #: 12541941 Rear, Rear Window Damage Estimate: $9,157.40 162698 Km Transmission: Auto Stationary Engine: Electric Montreal East Lane: 1 Run: 14 Location: IAA Montreal Laval QC-V.G.A Mon, Apr 06, 09:00 AM EDT Prebid available"},{"search_term":"ioniq","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2953226","image_page":"","title":"2018 HYUNDAI IONIQ LIMITED","vin":"KMHC85LH3JU******","stock_number":"12560135","sale_datetime":"Mon, Apr 06, 09:00 AM EDT","closing_date":"","city":"Hamilton","lane":"2","run":"141","location":"IAA Hamilton ON-SALVAGE","location_name":"IAA Hamilton ON","branding":"SALVAGE","high_pre_bid":"75.00","buy_now":"","engine":"Electric","functional_status":"Stationary","odometer_km":"137653","damage_estimate":"10,726.60","raw_text":"2018 HYUNDAI IONIQ LIMITED VIN #: KMHC85LH3JU****** Stock #: 12560135 Rear, Left Side Damage Estimate: $10,726.60 137653 Km Transmission: Auto Stationary Engine: Electric Hamilton Lane: 2 Run: 141 Location: IAA Hamilton ON-SALVAGE Mon, Apr 06, 09:00 AM EDT High Pre-Bid: $75.00 Prebid available"},{"search_term":"i4","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2948105","image_page":"","title":"2013 MAZDA MAZDA6 GS-I4","vin":"1YVHZ8BH1D5******","stock_number":"12555432","sale_datetime":"Tue, Apr 07, 11:00 AM EDT","closing_date":"","city":"Edmonton","lane":"2","run":"49","location":"IAA Edmonton AB-SALVAGE","location_name":"IAA Edmonton AB","branding":"SALVAGE","high_pre_bid":"","buy_now":"","engine":"2.5L I-4 DOHC, VVT, 170HP","functional_status":"Starts","odometer_km":"328638","damage_estimate":"9,704.70","raw_text":"2013 MAZDA MAZDA6 GS-I4 VIN #: 1YVHZ8BH1D5****** Stock #: 12555432 Front, Right Front Damage Estimate: $9,704.70 328638 Km Transmission: Auto Starts Engine: 2.5L I-4 DOHC, VVT, 170HP Edmonton Lane: 2 Run: 49 Location: IAA Edmonton AB-SALVAGE Tue, Apr 07, 11:00 AM EDT Prebid available"},{"search_term":"i4","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2965192","image_page":"","title":"2011 MAZDA MAZDA6 GS-I4","vin":"1YVHZ8BH7B5******","stock_number":"12570953","sale_datetime":"Mon, Apr 06, 09:00 AM EDT","closing_date":"","city":"Hamilton","lane":"2","run":"169","location":"IAA Hamilton South ON-NOT BRANDED","location_name":"IAA Hamilton South ON","branding":"NOT BRANDED","high_pre_bid":"","buy_now":"","engine":"2.5L I-4 DOHC, VVT, 170HP","functional_status":"Starts","odometer_km":"108700","damage_estimate":"2,966.69","raw_text":"2011 MAZDA MAZDA6 GS-I4 VIN #: 1YVHZ8BH7B5****** Stock #: 12570953 Front, Left Side Damage Estimate: $2,966.69 108700 Km Transmission: Auto Starts Engine: 2.5L I-4 DOHC, VVT, 170HP Hamilton Lane: 2 Run: 169 Location: IAA Hamilton South ON-NOT BRANDED Mon, Apr 06, 09:00 AM EDT Prebid available"},{"search_term":"i4","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2946257","image_page":"","title":"2009 MAZDA MAZDA6 GS-I4","vin":"1YVHP81A995******","stock_number":"12553797","sale_datetime":"Mon, Apr 06, 11:00 AM EDT","closing_date":"","city":"Edmonton","lane":"2","run":"26","location":"IAA Edmonton AB-SALVAGE","location_name":"IAA Edmonton AB","branding":"SALVAGE","high_pre_bid":"","buy_now":"","engine":"2.5L I-4 DOHC, VVT, 170HP","functional_status":"Run and Drive","odometer_km":"256607","damage_estimate":"6,980.00","raw_text":"2009 MAZDA MAZDA6 GS-I4 VIN #: 1YVHP81A995****** Stock #: 12553797 Left Side, Front Damage Estimate: $6,980.00 256607 Km Transmission: Auto RunAndDrive Engine: 2.5L I-4 DOHC, VVT, 170HP Edmonton Lane: 2 Run: 26 Location: IAA Edmonton AB-SALVAGE Mon, Apr 06, 11:00 AM EDT Prebid available"},{"search_term":"i4","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/30073732","image_page":"","title":"2004 MAZDA MAZDA6 GS-I4/GT-I4","vin":"1YVFP80C345******","stock_number":"40061172","sale_datetime":"Wed, Apr 08, 01:00 PM EDT","closing_date":"","city":"Nanaimo","lane":"3","run":"38","location":"C.R. COASTLINE TOWING & TRANSPORT LTD. SALVAGE","location_name":"C.R. COASTLINE TOWING & TRANSPORT LTD.","branding":"SALVAGE","high_pre_bid":"","buy_now":"","engine":"2.3L I-4 DOHC, VVT, 160HP","functional_status":"","odometer_km":"","damage_estimate":"","raw_text":"2004 MAZDA MAZDA6 GS-I4/GT-I4 VIN #: 1YVFP80C345****** Stock #: 40061172 Rear, Left Rear Unknown Stationary Engine: 2.3L I-4 DOHC, VVT, 160HP Nanaimo Lane: 3 Run: 38 Location: C.R. COASTLINE TOWING & TRANSPORT LTD. SALVAGE Wed, Apr 08, 01:00 PM EDT Prebid available"},{"search_term":"e-tron","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2916562","image_page":"","title":"2025 AUDI Q4 E-TRON","vin":"WA1GUAFZ4SP******","stock_number":"12526738","sale_datetime":"Mon, Apr 06, 09:00 AM EDT","closing_date":"","city":"Montreal East","lane":"1","run":"104","location":"IAA Montreal Laval QC-V.G.A","location_name":"IAA Montreal Laval QC","branding":"V.G.A","high_pre_bid":"3,800.00","buy_now":"","engine":"Electric","functional_status":"Starts","odometer_km":"18596","damage_estimate":"37,589.84","raw_text":"2025 AUDI Q4 E-TRON VIN #: WA1GUAFZ4SP****** Stock #: 12526738 Front Damage Estimate: $37,589.84 18596 Km Transmission: Auto Starts Engine: Electric Montreal East Lane: 1 Run: 104 Location: IAA Montreal Laval QC-V.G.A Mon, Apr 06, 09:00 AM EDT High Pre-Bid: $3,800.00 Prebid available"},{"search_term":"e-tron","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2945385","image_page":"","title":"2025 AUDI Q4 E-TRON","vin":"WA1GUAFZ4SP******","stock_number":"12552988","sale_datetime":"Thu, Apr 09, 09:00 AM EDT","closing_date":"","city":"Montreal East","lane":"1","run":"13","location":"IAA Montreal Laval Gate 2 QC-V.G.A","location_name":"IAA Montreal Laval Gate 2 QC","branding":"V.G.A","high_pre_bid":"7,000.00","buy_now":"","engine":"Electric","functional_status":"Starts","odometer_km":"7388","damage_estimate":"24,392.13","raw_text":"2025 AUDI Q4 E-TRON VIN #: WA1GUAFZ4SP****** Stock #: 12552988 Front Damage Estimate: $24,392.13 7388 Km Transmission: Auto Starts Engine: Electric Montreal East Lane: 1 Run: 13 Location: IAA Montreal Laval Gate 2 QC-V.G.A Thu, Apr 09, 09:00 AM EDT High Pre-Bid: $7,000.00 Prebid available"},{"search_term":"e-tron","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2852242","image_page":"","title":"2024 AUDI Q8 E-TRON","vin":"WA1BABGE2RB******","stock_number":"12467014","sale_datetime":"Tue, Apr 07, 09:00 AM EDT","closing_date":"","city":"Montreal West","lane":"3","run":"97","location":"IAA Montreal West QC-V.G.A","location_name":"IAA Montreal West QC","branding":"V.G.A","high_pre_bid":"6,100.00","buy_now":"","engine":"U","functional_status":"Starts","odometer_km":"47110","damage_estimate":"72,040.52","raw_text":"2024 AUDI Q8 E-TRON VIN #: WA1BABGE2RB****** Stock #: 12467014 Front, Left Front Damage Estimate: $72,040.52 47110 Km Transmission: Auto Starts Engine: U Montreal West Lane: 3 Run: 97 Location: IAA Montreal West QC-V.G.A Tue, Apr 07, 09:00 AM EDT High Pre-Bid: $6,100.00 Prebid available"},{"search_term":"e-tron","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/30073934","image_page":"","title":"2024 AUDI Q4 E-TRON PREMIUM","vin":"WA1K2BFZ0RP******","stock_number":"40061317","sale_datetime":"Wed, Apr 08, 01:00 PM EDT","closing_date":"","city":"","lane":"1","run":"14","location":"Lower Mainland SALVAGE","location_name":"Lower Mainland","branding":"SALVAGE","high_pre_bid":"9,300.00","buy_now":"","engine":"","functional_status":"Run and Drive","odometer_km":"27229","damage_estimate":"","raw_text":"2024 AUDI Q4 E-TRON PREMIUM VIN #: WA1K2BFZ0RP****** Stock #: 40061317 Left Side, Front 27229 Km Transmission: Auto RunAndDrive Lower Mainland Lane: 1 Run: 14 Location: Lower Mainland SALVAGE Wed, Apr 08, 01:00 PM EDT High Pre-Bid: $9,300.00 Prebid available"},{"search_term":"e-tron","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/30072676","image_page":"","title":"2024 AUDI Q8 E-TRON PREMIUM","vin":"WA14ABGE0RB******","stock_number":"40058780","sale_datetime":"Wed, Apr 08, 01:00 PM EDT","closing_date":"","city":"Lower Mainland","lane":"1","run":"76","location":"Lower Mainland SALVAGE","location_name":"Lower Mainland","branding":"SALVAGE","high_pre_bid":"4,200.00","buy_now":"","engine":"Electric","functional_status":"Stationary","odometer_km":"15133","damage_estimate":"","raw_text":"2024 AUDI Q8 E-TRON PREMIUM VIN #: WA14ABGE0RB****** Stock #: 40058780 Rear, Roof Damage 15133 Km Transmission: Auto Stationary Engine: Electric Lower Mainland Lane: 1 Run: 76 Location: Lower Mainland SALVAGE Wed, Apr 08, 01:00 PM EDT High Pre-Bid: $4,200.00 Prebid available"},{"search_term":"e-tron","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/30073794","image_page":"","title":"2023 AUDI Q4 E-TRON PREMIUM","vin":"WA1L2AFZXPP******","stock_number":"40053632","sale_datetime":"Wed, Apr 08, 01:00 PM EDT","closing_date":"","city":"Lower Mainland","lane":"5","run":"60","location":"Lower Mainland SALVAGE","location_name":"Lower Mainland","branding":"SALVAGE","high_pre_bid":"6,100.00","buy_now":"","engine":"Electric","functional_status":"Stationary","odometer_km":"24606","damage_estimate":"","raw_text":"2023 AUDI Q4 E-TRON PREMIUM VIN #: WA1L2AFZXPP****** Stock #: 40053632 Right Front, Front 24606 Km Transmission: Auto Stationary Engine: Electric Lower Mainland Lane: 5 Run: 60 Location: Lower Mainland SALVAGE Wed, Apr 08, 01:00 PM EDT High Pre-Bid: $6,100.00 Prebid available"},{"search_term":"e-tron","result_page":1,"detail_page":"https://ca.iaai.com/vehicle-details/2965739","image_page":"","title":"2023 AUDI E-TRON CHRONOS","vin":"WA1VAAGE1PB******","stock_number":"12571425","sale_datetime":"","closing_date":"Wed, Apr 15, 2026","city":"Montreal East","lane":"","run":"","location":"IAA Montreal Laval Gate 2 QC-IRRECUPERABLE","location_name":"IAA Montreal Laval Gate 2 QC","branding":"IRRECUPERABLE","high_pre_bid":"","buy_now":"9,600.00","engine":"Electric","functional_status":"Starts","odometer_km":"68778","damage_estimate":"","raw_text":"2023 AUDI E-TRON CHRONOS VIN #: WA1VAAGE1PB****** Stock #: 12571425 Left Side, Rear 68778 Km Transmission: Auto Starts Engine: Electric Montreal East Location: IAA Montreal Laval Gate 2 QC-IRRECUPERABLE Closing Date: Wed, Apr 15, 2026 Buy Now: $9,600.00"}];
+
+    function safe(value) {
+      return String(value || '').trim();
+    }
+
+    function lower(value) {
+      return safe(value).toLowerCase();
+    }
+
+    function moneyNumber(value) {
+      if (!value) return null;
+      const n = Number(String(value).replace(/,/g, ''));
+      return Number.isFinite(n) ? n : null;
+    }
+
+    function kmNumber(value) {
+      if (!value) return null;
+      const n = Number(String(value).replace(/,/g, ''));
+      return Number.isFinite(n) ? n : null;
+    }
+
+    function vehicleKey(item) {
+      const title = safe(item.title);
+      const m = title.match(/^\d{4}\s+(.+)$/);
+      return m ? m[1] : title;
+    }
+
+    function brandingClass(value) {
+      const v = lower(value);
+      if (!v) return 'branding-default';
+      if (v.includes('not branded') || v.includes('clean')) return 'branding-green';
+      if (v.includes('salvage')) return 'branding-yellow';
+      if (v.includes('irreparable') || v.includes('non-repairable') || v.includes('non repairable')) return 'branding-red';
+      return 'branding-default';
+    }
+
+    function statusClass(value) {
+      const v = lower(value);
+      if (v === 'run and drive') return 'status-blue';
+      if (v === 'starts') return 'status-yellow';
+      if (v === 'stationary') return 'status-orange';
+      return 'status-default';
+    }
+
+    function isRepossessed(item) {
+      const combined = [
+        item.title,
+        item.raw_text,
+        item.branding,
+        item.location,
+        item.location_name
+      ].map(safe).join(' ').toLowerCase();
+
+      return combined.includes('repossessed') || combined.includes('repo');
+    }
+
+    function field(label, value) {
+      if (!safe(value)) return '';
+      return `
+        <div class="field">
+          <span class="field-label">${label}</span>
+          ${safe(value)}
         </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> Polestar</div>
-        <div class="field"><strong>VIN:</strong> YSMED3KA3PL******</div>
-        <div class="field"><strong>Stock:</strong> 12562542</div>
-        
-        <div class="field"><strong>Closing date:</strong> Fri, Apr 10, 2026</div>
-        <div class="field"><strong>City:</strong> Hamilton</div>
-        
-        
-        <div class="field"><strong>Location:</strong> IAA Hamilton ON-NOT BRANDED</div>
-        <div class="field"><strong>Location name:</strong> IAA Hamilton ON</div>
-        <div class="field"><strong>Branding:</strong> NOT BRANDED</div>
-        <div class="field"><strong>Status:</strong> Stationary</div>
-        <div class="field"><strong>Engine:</strong> Electric</div>
-        
-        <div class="field"><strong>Damage estimate:</strong> $15,958.88</div>
-        
-        <div class="field"><strong>Buy now:</strong> $11,000.00</div>
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2022 POLESTAR 2</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/30073865" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> Polestar</div>
-        <div class="field"><strong>VIN:</strong> LPSED3KAXNL******</div>
-        <div class="field"><strong>Stock:</strong> 40061269</div>
-        <div class="field"><strong>Sale date:</strong> Wed, Apr 08, 01:00 PM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Fraser Valley</div>
-        <div class="field"><strong>Lane:</strong> 3</div>
-        <div class="field"><strong>Run:</strong> 92</div>
-        <div class="field"><strong>Location:</strong> Fraser Valley SALVAGE</div>
-        <div class="field"><strong>Location name:</strong> Fraser Valley</div>
-        <div class="field"><strong>Branding:</strong> SALVAGE</div>
-        <div class="field"><strong>Status:</strong> Stationary</div>
-        <div class="field"><strong>Engine:</strong> U X</div>
-        <div class="field"><strong>KM:</strong> 106386</div>
-        
-        
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2021 POLESTAR 2 LAUNCH EDITION</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2965060" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> Polestar</div>
-        <div class="field"><strong>VIN:</strong> LPSED3KA0ML******</div>
-        <div class="field"><strong>Stock:</strong> 12570821</div>
-        <div class="field"><strong>Sale date:</strong> Wed, Apr 08, 09:00 AM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Hamilton</div>
-        <div class="field"><strong>Lane:</strong> 2</div>
-        <div class="field"><strong>Run:</strong> 178</div>
-        <div class="field"><strong>Location:</strong> IAA Hamilton ON-SALVAGE</div>
-        <div class="field"><strong>Location name:</strong> IAA Hamilton ON</div>
-        <div class="field"><strong>Branding:</strong> SALVAGE</div>
-        <div class="field"><strong>Status:</strong> Stationary</div>
-        <div class="field"><strong>Engine:</strong> Electric</div>
-        <div class="field"><strong>KM:</strong> 77810</div>
-        <div class="field"><strong>Damage estimate:</strong> $18,483.59</div>
-        
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2022 FORD F150 LIGHTNING PRO/LIGHTNING XLT/LIGHTNING LARIAT/LIGHTNING PLATINUM</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/30073393" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> Lightning</div>
-        <div class="field"><strong>VIN:</strong> 1FT6W1EV3NW******</div>
-        <div class="field"><strong>Stock:</strong> 40053196</div>
-        <div class="field"><strong>Sale date:</strong> Wed, Apr 08, 01:00 PM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Lower Mainland</div>
-        <div class="field"><strong>Lane:</strong> 1</div>
-        <div class="field"><strong>Run:</strong> 30</div>
-        <div class="field"><strong>Location:</strong> Lower Mainland SALVAGE</div>
-        <div class="field"><strong>Location name:</strong> Lower Mainland</div>
-        <div class="field"><strong>Branding:</strong> SALVAGE</div>
-        <div class="field"><strong>Status:</strong> Stationary</div>
-        <div class="field"><strong>Engine:</strong> Electric</div>
-        
-        
-        
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2025 KIA EV9 LAND</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2909669" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> Ev9</div>
-        <div class="field"><strong>VIN:</strong> KNDAFFS57S6******</div>
-        <div class="field"><strong>Stock:</strong> 12520282</div>
-        <div class="field"><strong>Sale date:</strong> Tue, Apr 07, 09:00 AM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Toronto (Oshawa)</div>
-        <div class="field"><strong>Lane:</strong> 4</div>
-        <div class="field"><strong>Run:</strong> 40</div>
-        <div class="field"><strong>Location:</strong> IAA Toronto ON-SALVAGE</div>
-        <div class="field"><strong>Location name:</strong> IAA Toronto ON</div>
-        <div class="field"><strong>Branding:</strong> SALVAGE</div>
-        <div class="field"><strong>Status:</strong> Starts</div>
-        <div class="field"><strong>Engine:</strong> Electric</div>
-        <div class="field"><strong>KM:</strong> 48749</div>
-        <div class="field"><strong>Damage estimate:</strong> $46,207.93</div>
-        
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2026 KIA NIRO EV WIND/WIND+</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2888734" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> ev</div>
-        <div class="field"><strong>VIN:</strong> KNDCP3L11T5******</div>
-        <div class="field"><strong>Stock:</strong> 12500962</div>
-        <div class="field"><strong>Sale date:</strong> Mon, Apr 06, 09:00 AM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Montreal East</div>
-        <div class="field"><strong>Lane:</strong> 1</div>
-        <div class="field"><strong>Run:</strong> 58</div>
-        <div class="field"><strong>Location:</strong> IAA Montreal Laval Gate 2 QC-V.G.A</div>
-        <div class="field"><strong>Location name:</strong> IAA Montreal Laval Gate 2 QC</div>
-        <div class="field"><strong>Branding:</strong> V.G.A</div>
-        <div class="field"><strong>Status:</strong> Run and Drive</div>
-        <div class="field"><strong>Engine:</strong> Electric</div>
-        <div class="field"><strong>KM:</strong> 957</div>
-        <div class="field"><strong>Damage estimate:</strong> $27,031.43</div>
-        <div class="field"><strong>High pre-bid:</strong> $1,750.00</div>
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2025 KIA NIRO EV WIND/WIND+</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2927047" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> ev</div>
-        <div class="field"><strong>VIN:</strong> KNDCP3L11S5******</div>
-        <div class="field"><strong>Stock:</strong> 12536396</div>
-        <div class="field"><strong>Sale date:</strong> Tue, Apr 07, 09:00 AM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Montreal East</div>
-        <div class="field"><strong>Lane:</strong> 1</div>
-        <div class="field"><strong>Run:</strong> 17</div>
-        <div class="field"><strong>Location:</strong> IAA Montreal Laval QC-V.G.A</div>
-        <div class="field"><strong>Location name:</strong> IAA Montreal Laval QC</div>
-        <div class="field"><strong>Branding:</strong> V.G.A</div>
-        <div class="field"><strong>Status:</strong> Starts</div>
-        <div class="field"><strong>Engine:</strong> Electric</div>
-        <div class="field"><strong>KM:</strong> 14660</div>
-        <div class="field"><strong>Damage estimate:</strong> $30,161.93</div>
-        <div class="field"><strong>High pre-bid:</strong> $1,750.00</div>
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2025 CHEVROLET EQUINOX EV LT</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2954326" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> ev</div>
-        <div class="field"><strong>VIN:</strong> 3GN7DLRR9SS******</div>
-        <div class="field"><strong>Stock:</strong> 12561104</div>
-        <div class="field"><strong>Sale date:</strong> Tue, Apr 07, 09:00 AM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Montreal East</div>
-        <div class="field"><strong>Lane:</strong> 1</div>
-        <div class="field"><strong>Run:</strong> 32</div>
-        <div class="field"><strong>Location:</strong> IAA Montreal Laval QC-V.G.A</div>
-        <div class="field"><strong>Location name:</strong> IAA Montreal Laval QC</div>
-        <div class="field"><strong>Branding:</strong> V.G.A</div>
-        <div class="field"><strong>Status:</strong> Run and Drive</div>
-        <div class="field"><strong>Engine:</strong> Electric</div>
-        <div class="field"><strong>KM:</strong> 15974</div>
-        <div class="field"><strong>Damage estimate:</strong> $25,742.51</div>
-        
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2025 CHEVROLET BLAZER EV RS AWD</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2885997" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> ev</div>
-        <div class="field"><strong>VIN:</strong> 3GNKDJRJ7SS******</div>
-        <div class="field"><strong>Stock:</strong> 12498385</div>
-        <div class="field"><strong>Sale date:</strong> Mon, Apr 06, 09:00 AM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Montreal East</div>
-        <div class="field"><strong>Lane:</strong> 1</div>
-        <div class="field"><strong>Run:</strong> 59</div>
-        <div class="field"><strong>Location:</strong> IAA Montreal Laval QC-V.G.A</div>
-        <div class="field"><strong>Location name:</strong> IAA Montreal Laval QC</div>
-        <div class="field"><strong>Branding:</strong> V.G.A</div>
-        <div class="field"><strong>Status:</strong> Starts</div>
-        <div class="field"><strong>Engine:</strong> Electric</div>
-        <div class="field"><strong>KM:</strong> 2924</div>
-        <div class="field"><strong>Damage estimate:</strong> $29,854.53</div>
-        <div class="field"><strong>High pre-bid:</strong> $12,600.00</div>
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2025 CHEVROLET EQUINOX EV RS</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2912695" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> ev</div>
-        <div class="field"><strong>VIN:</strong> 3GN7DSRR0SS******</div>
-        <div class="field"><strong>Stock:</strong> 12523132</div>
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        <div class="field"><strong>Damage estimate:</strong> $39,068.16</div>
-        
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2087 Km</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2930682" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> ev</div>
-        
-        
-        <div class="field"><strong>Sale date:</strong> Mon, Apr 06, 09:00 AM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Montreal East</div>
-        <div class="field"><strong>Lane:</strong> 1</div>
-        <div class="field"><strong>Run:</strong> 110</div>
-        <div class="field"><strong>Location:</strong> IAA Montreal Laval Gate 2 QC-V.G.A</div>
-        <div class="field"><strong>Location name:</strong> IAA Montreal Laval Gate 2 QC</div>
-        <div class="field"><strong>Branding:</strong> V.G.A</div>
-        <div class="field"><strong>Status:</strong> Stationary</div>
-        <div class="field"><strong>Engine:</strong> Electric</div>
-        <div class="field"><strong>KM:</strong> 2087</div>
-        
-        <div class="field"><strong>High pre-bid:</strong> $4,100.00</div>
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2025 CHEVROLET EQUINOX EV RS</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2886786" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> ev</div>
-        <div class="field"><strong>VIN:</strong> 3GN7DSRP1SS******</div>
-        <div class="field"><strong>Stock:</strong> 12539832</div>
-        <div class="field"><strong>Sale date:</strong> Mon, Apr 06, 09:00 AM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Montreal East</div>
-        <div class="field"><strong>Lane:</strong> 1</div>
-        <div class="field"><strong>Run:</strong> 130</div>
-        <div class="field"><strong>Location:</strong> IAA Montreal Laval QC-V.G.A</div>
-        <div class="field"><strong>Location name:</strong> IAA Montreal Laval QC</div>
-        <div class="field"><strong>Branding:</strong> V.G.A</div>
-        <div class="field"><strong>Status:</strong> Stationary</div>
-        <div class="field"><strong>Engine:</strong> Electric</div>
-        <div class="field"><strong>KM:</strong> 16817</div>
-        <div class="field"><strong>Damage estimate:</strong> $37,533.93</div>
-        
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2024 CHEVROLET BLAZER EV</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2952516" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> ev</div>
-        <div class="field"><strong>VIN:</strong> 3GNKDBRJ9RS******</div>
-        <div class="field"><strong>Stock:</strong> 12499168</div>
-        <div class="field"><strong>Sale date:</strong> Mon, Apr 06, 09:00 AM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Montreal West</div>
-        <div class="field"><strong>Lane:</strong> 3</div>
-        <div class="field"><strong>Run:</strong> 88</div>
-        <div class="field"><strong>Location:</strong> IAA Montreal West QC-V.G.A</div>
-        <div class="field"><strong>Location name:</strong> IAA Montreal West QC</div>
-        <div class="field"><strong>Branding:</strong> V.G.A</div>
-        <div class="field"><strong>Status:</strong> Stationary</div>
-        <div class="field"><strong>Engine:</strong> N</div>
-        <div class="field"><strong>KM:</strong> 37065</div>
-        <div class="field"><strong>Damage estimate:</strong> $23,599.75</div>
-        
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2023 CHEVROLET BOLT EV</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2980631" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> ev</div>
-        <div class="field"><strong>VIN:</strong> 1G1FW6S09P4******</div>
-        <div class="field"><strong>Stock:</strong> 12559464</div>
-        <div class="field"><strong>Sale date:</strong> Tue, Apr 07, 09:00 AM EDT</div>
-        
-        <div class="field"><strong>City:</strong> NX Montreal West</div>
-        <div class="field"><strong>Lane:</strong> 3</div>
-        <div class="field"><strong>Run:</strong> 75</div>
-        <div class="field"><strong>Location:</strong> IAA Montreal West QC-V.G.A</div>
-        <div class="field"><strong>Location name:</strong> IAA Montreal West QC</div>
-        <div class="field"><strong>Branding:</strong> V.G.A</div>
-        <div class="field"><strong>Status:</strong> Stationary</div>
-        <div class="field"><strong>Engine:</strong> U</div>
-        <div class="field"><strong>KM:</strong> 35991</div>
-        <div class="field"><strong>Damage estimate:</strong> $27,062.13</div>
-        <div class="field"><strong>High pre-bid:</strong> $600.00</div>
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2021 CHEVROLET BOLT EV LT</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/30057678" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> ev</div>
-        <div class="field"><strong>VIN:</strong> 1G1FY6S08M4******</div>
-        <div class="field"><strong>Stock:</strong> 12563108X</div>
-        <div class="field"><strong>Sale date:</strong> Tue, Apr 07, 09:00 AM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Quebec City</div>
-        <div class="field"><strong>Lane:</strong> 2</div>
-        <div class="field"><strong>Run:</strong> 36</div>
-        <div class="field"><strong>Location:</strong> IAA Quebec City QC-IRRECUPERABLE</div>
-        <div class="field"><strong>Location name:</strong> IAA Quebec City QC</div>
-        <div class="field"><strong>Branding:</strong> IRRECUPERABLE</div>
-        <div class="field"><strong>Status:</strong> Stationary</div>
-        <div class="field"><strong>Engine:</strong> Electric</div>
-        <div class="field"><strong>KM:</strong> 79650</div>
-        <div class="field"><strong>Damage estimate:</strong> $0.00</div>
-        
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2021 CHEVROLET BOLT EV PREMIER</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2972478" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> ev</div>
-        <div class="field"><strong>VIN:</strong> 1G1FZ6S09M4******</div>
-        <div class="field"><strong>Stock:</strong> 40044390</div>
-        <div class="field"><strong>Sale date:</strong> Wed, Apr 08, 01:00 PM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Lower Mainland</div>
-        <div class="field"><strong>Lane:</strong> 2</div>
-        <div class="field"><strong>Run:</strong> 19</div>
-        <div class="field"><strong>Location:</strong> Lower Mainland NON-REPAIRABLE</div>
-        <div class="field"><strong>Location name:</strong> Lower Mainland NON</div>
-        <div class="field"><strong>Branding:</strong> REPAIRABLE</div>
-        <div class="field"><strong>Status:</strong> Run and Drive</div>
-        <div class="field"><strong>Engine:</strong> Electric</div>
-        <div class="field"><strong>KM:</strong> 71747</div>
-        
-        <div class="field"><strong>High pre-bid:</strong> $1,050.00</div>
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2017 HYUNDAI IONIQ EV LIMITED</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2876359" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> ioniq</div>
-        <div class="field"><strong>VIN:</strong> KMHC05LH0HU******</div>
-        <div class="field"><strong>Stock:</strong> 12489426</div>
-        <div class="field"><strong>Sale date:</strong> Mon, Apr 06, 09:00 AM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Toronto (Oshawa)</div>
-        <div class="field"><strong>Lane:</strong> 3</div>
-        <div class="field"><strong>Run:</strong> 86</div>
-        <div class="field"><strong>Location:</strong> IAA Toronto ON-SALVAGE</div>
-        <div class="field"><strong>Location name:</strong> IAA Toronto ON</div>
-        <div class="field"><strong>Branding:</strong> SALVAGE</div>
-        <div class="field"><strong>Status:</strong> Stationary</div>
-        <div class="field"><strong>Engine:</strong> Electric</div>
-        <div class="field"><strong>KM:</strong> 119091</div>
-        <div class="field"><strong>Damage estimate:</strong> $32,537.06</div>
-        
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2017 HYUNDAI IONIQ EV LIMITED</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2980633" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> ev</div>
-        <div class="field"><strong>VIN:</strong> KMHC05LH0HU******</div>
-        <div class="field"><strong>Stock:</strong> 12489426</div>
-        <div class="field"><strong>Sale date:</strong> Mon, Apr 06, 09:00 AM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Toronto (Oshawa)</div>
-        <div class="field"><strong>Lane:</strong> 3</div>
-        <div class="field"><strong>Run:</strong> 86</div>
-        <div class="field"><strong>Location:</strong> IAA Toronto ON-SALVAGE</div>
-        <div class="field"><strong>Location name:</strong> IAA Toronto ON</div>
-        <div class="field"><strong>Branding:</strong> SALVAGE</div>
-        <div class="field"><strong>Status:</strong> Stationary</div>
-        <div class="field"><strong>Engine:</strong> Electric</div>
-        <div class="field"><strong>KM:</strong> 119091</div>
-        <div class="field"><strong>Damage estimate:</strong> $32,537.06</div>
-        
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2026 HYUNDAI IONIQ 9 PREFERRED AWD+ WITH ULTIMATE CALLIGRAPHY PACKAGE</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2958883" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> ioniq</div>
-        <div class="field"><strong>VIN:</strong> KM8MYFS59TA******</div>
-        <div class="field"><strong>Stock:</strong> 12565254</div>
-        <div class="field"><strong>Sale date:</strong> Wed, Apr 08, 09:00 AM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Toronto (Oshawa)</div>
-        <div class="field"><strong>Lane:</strong> 3</div>
-        <div class="field"><strong>Run:</strong> 22</div>
-        <div class="field"><strong>Location:</strong> IAA Toronto ON-SALVAGE</div>
-        <div class="field"><strong>Location name:</strong> IAA Toronto ON</div>
-        <div class="field"><strong>Branding:</strong> SALVAGE</div>
-        <div class="field"><strong>Status:</strong> Stationary</div>
-        <div class="field"><strong>Engine:</strong> Electric</div>
-        <div class="field"><strong>KM:</strong> 4148</div>
-        <div class="field"><strong>Damage estimate:</strong> $70,547.54</div>
-        
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2024 HYUNDAI IONIQ 6 LIMITED</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2950094" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> ioniq</div>
-        <div class="field"><strong>VIN:</strong> KMHM54AC6RA******</div>
-        <div class="field"><strong>Stock:</strong> 12557254</div>
-        <div class="field"><strong>Sale date:</strong> Tue, Apr 07, 09:00 AM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Hamilton</div>
-        <div class="field"><strong>Lane:</strong> 2</div>
-        <div class="field"><strong>Run:</strong> 146</div>
-        <div class="field"><strong>Location:</strong> IAA Hamilton ON-NOT BRANDED</div>
-        <div class="field"><strong>Location name:</strong> IAA Hamilton ON</div>
-        <div class="field"><strong>Branding:</strong> NOT BRANDED</div>
-        <div class="field"><strong>Status:</strong> Stationary</div>
-        <div class="field"><strong>Engine:</strong> Electric</div>
-        <div class="field"><strong>KM:</strong> 147815</div>
-        <div class="field"><strong>Damage estimate:</strong> $6,565.94</div>
-        
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2024 HYUNDAI IONIQ 5 LIMITED/DISNEY 100 PLATINUM EDITION</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2868547" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> ioniq</div>
-        <div class="field"><strong>VIN:</strong> KM8KRDDF9RU******</div>
-        <div class="field"><strong>Stock:</strong> 12482159</div>
-        <div class="field"><strong>Sale date:</strong> Tue, Apr 07, 08:30 AM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Moncton</div>
-        <div class="field"><strong>Lane:</strong> 2</div>
-        <div class="field"><strong>Run:</strong> 52</div>
-        <div class="field"><strong>Location:</strong> IAA Moncton ON-NOT BRANDED</div>
-        <div class="field"><strong>Location name:</strong> IAA Moncton ON</div>
-        <div class="field"><strong>Branding:</strong> NOT BRANDED</div>
-        <div class="field"><strong>Status:</strong> Run and Drive</div>
-        <div class="field"><strong>Engine:</strong> N</div>
-        <div class="field"><strong>KM:</strong> 25966</div>
-        
-        <div class="field"><strong>High pre-bid:</strong> $20,100.00</div>
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2024 HYUNDAI IONIQ 6 PREFERRED LONG RANGE</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2880608" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> ioniq</div>
-        <div class="field"><strong>VIN:</strong> KMHM34ACXRA******</div>
-        <div class="field"><strong>Stock:</strong> 12493353</div>
-        <div class="field"><strong>Sale date:</strong> Mon, Apr 06, 09:00 AM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Montreal East</div>
-        <div class="field"><strong>Lane:</strong> 1</div>
-        <div class="field"><strong>Run:</strong> 72</div>
-        <div class="field"><strong>Location:</strong> IAA Montreal Laval QC-V.G.A</div>
-        <div class="field"><strong>Location name:</strong> IAA Montreal Laval QC</div>
-        <div class="field"><strong>Branding:</strong> V.G.A</div>
-        <div class="field"><strong>Status:</strong> Starts</div>
-        <div class="field"><strong>Engine:</strong> Electric</div>
-        <div class="field"><strong>KM:</strong> 23031</div>
-        <div class="field"><strong>Damage estimate:</strong> $31,324.03</div>
-        <div class="field"><strong>High pre-bid:</strong> $3,400.00</div>
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2024 HYUNDAI IONIQ 5 PREFERRED LONG RANGE</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2896933" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> ioniq</div>
-        <div class="field"><strong>VIN:</strong> KM8KN4DE3RU******</div>
-        <div class="field"><strong>Stock:</strong> 12508671</div>
-        <div class="field"><strong>Sale date:</strong> Mon, Apr 06, 09:00 AM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Montreal East</div>
-        <div class="field"><strong>Lane:</strong> 1</div>
-        <div class="field"><strong>Run:</strong> 92</div>
-        <div class="field"><strong>Location:</strong> IAA Montreal Laval Gate 2 QC-V.G.A</div>
-        <div class="field"><strong>Location name:</strong> IAA Montreal Laval Gate 2 QC</div>
-        <div class="field"><strong>Branding:</strong> V.G.A</div>
-        <div class="field"><strong>Status:</strong> Starts</div>
-        <div class="field"><strong>Engine:</strong> Electric</div>
-        <div class="field"><strong>KM:</strong> 33998</div>
-        <div class="field"><strong>Damage estimate:</strong> $28,532.11</div>
-        
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2024 HYUNDAI IONIQ 5 PREFERRED LONG RANGE</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2898992" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> ioniq</div>
-        <div class="field"><strong>VIN:</strong> KM8KN4DE8RU******</div>
-        <div class="field"><strong>Stock:</strong> 12510562</div>
-        <div class="field"><strong>Sale date:</strong> Mon, Apr 06, 09:00 AM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Quebec City</div>
-        <div class="field"><strong>Lane:</strong> 2</div>
-        <div class="field"><strong>Run:</strong> 30</div>
-        <div class="field"><strong>Location:</strong> IAA Quebec City QC-V.G.A</div>
-        <div class="field"><strong>Location name:</strong> IAA Quebec City QC</div>
-        <div class="field"><strong>Branding:</strong> V.G.A</div>
-        <div class="field"><strong>Status:</strong> Stationary</div>
-        <div class="field"><strong>Engine:</strong> Electric</div>
-        <div class="field"><strong>KM:</strong> 24324</div>
-        <div class="field"><strong>Damage estimate:</strong> $59,346.50</div>
-        <div class="field"><strong>High pre-bid:</strong> $4,200.00</div>
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2019 HYUNDAI IONIQ HYBRID PREFERRED</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2971018" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> ioniq</div>
-        <div class="field"><strong>VIN:</strong> KMHC85LC4KU******</div>
-        <div class="field"><strong>Stock:</strong> 12576192</div>
-        <div class="field"><strong>Sale date:</strong> Tue, Apr 07, 09:00 AM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Montreal East</div>
-        <div class="field"><strong>Lane:</strong> 1</div>
-        <div class="field"><strong>Run:</strong> 83</div>
-        <div class="field"><strong>Location:</strong> IAA Montreal Laval Gate 2 QC-V.G.A</div>
-        <div class="field"><strong>Location name:</strong> IAA Montreal Laval Gate 2 QC</div>
-        <div class="field"><strong>Branding:</strong> V.G.A</div>
-        <div class="field"><strong>Status:</strong> Run and Drive</div>
-        <div class="field"><strong>Engine:</strong> 1.6L I-4 DI, DOHC, VVT, 104HP</div>
-        <div class="field"><strong>KM:</strong> 199043</div>
-        <div class="field"><strong>Damage estimate:</strong> $13,991.92</div>
-        
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2019 HYUNDAI IONIQ PREFERRED</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2933154" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> ioniq</div>
-        <div class="field"><strong>VIN:</strong> KMHC85LH1KU******</div>
-        <div class="field"><strong>Stock:</strong> 12541941</div>
-        <div class="field"><strong>Sale date:</strong> Mon, Apr 06, 09:00 AM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Montreal East</div>
-        <div class="field"><strong>Lane:</strong> 1</div>
-        <div class="field"><strong>Run:</strong> 14</div>
-        <div class="field"><strong>Location:</strong> IAA Montreal Laval QC-V.G.A</div>
-        <div class="field"><strong>Location name:</strong> IAA Montreal Laval QC</div>
-        <div class="field"><strong>Branding:</strong> V.G.A</div>
-        <div class="field"><strong>Status:</strong> Stationary</div>
-        <div class="field"><strong>Engine:</strong> Electric</div>
-        <div class="field"><strong>KM:</strong> 162698</div>
-        <div class="field"><strong>Damage estimate:</strong> $9,157.40</div>
-        
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2018 HYUNDAI IONIQ LIMITED</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2953226" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> ioniq</div>
-        <div class="field"><strong>VIN:</strong> KMHC85LH3JU******</div>
-        <div class="field"><strong>Stock:</strong> 12560135</div>
-        <div class="field"><strong>Sale date:</strong> Mon, Apr 06, 09:00 AM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Hamilton</div>
-        <div class="field"><strong>Lane:</strong> 2</div>
-        <div class="field"><strong>Run:</strong> 141</div>
-        <div class="field"><strong>Location:</strong> IAA Hamilton ON-SALVAGE</div>
-        <div class="field"><strong>Location name:</strong> IAA Hamilton ON</div>
-        <div class="field"><strong>Branding:</strong> SALVAGE</div>
-        <div class="field"><strong>Status:</strong> Stationary</div>
-        <div class="field"><strong>Engine:</strong> Electric</div>
-        <div class="field"><strong>KM:</strong> 137653</div>
-        <div class="field"><strong>Damage estimate:</strong> $10,726.60</div>
-        <div class="field"><strong>High pre-bid:</strong> $75.00</div>
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2013 MAZDA MAZDA6 GS-I4</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2948105" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> i4</div>
-        <div class="field"><strong>VIN:</strong> 1YVHZ8BH1D5******</div>
-        <div class="field"><strong>Stock:</strong> 12555432</div>
-        <div class="field"><strong>Sale date:</strong> Tue, Apr 07, 11:00 AM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Edmonton</div>
-        <div class="field"><strong>Lane:</strong> 2</div>
-        <div class="field"><strong>Run:</strong> 49</div>
-        <div class="field"><strong>Location:</strong> IAA Edmonton AB-SALVAGE</div>
-        <div class="field"><strong>Location name:</strong> IAA Edmonton AB</div>
-        <div class="field"><strong>Branding:</strong> SALVAGE</div>
-        <div class="field"><strong>Status:</strong> Starts</div>
-        <div class="field"><strong>Engine:</strong> 2.5L I-4 DOHC, VVT, 170HP</div>
-        <div class="field"><strong>KM:</strong> 328638</div>
-        <div class="field"><strong>Damage estimate:</strong> $9,704.70</div>
-        
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2011 MAZDA MAZDA6 GS-I4</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2965192" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> i4</div>
-        <div class="field"><strong>VIN:</strong> 1YVHZ8BH7B5******</div>
-        <div class="field"><strong>Stock:</strong> 12570953</div>
-        <div class="field"><strong>Sale date:</strong> Mon, Apr 06, 09:00 AM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Hamilton</div>
-        <div class="field"><strong>Lane:</strong> 2</div>
-        <div class="field"><strong>Run:</strong> 169</div>
-        <div class="field"><strong>Location:</strong> IAA Hamilton South ON-NOT BRANDED</div>
-        <div class="field"><strong>Location name:</strong> IAA Hamilton South ON</div>
-        <div class="field"><strong>Branding:</strong> NOT BRANDED</div>
-        <div class="field"><strong>Status:</strong> Starts</div>
-        <div class="field"><strong>Engine:</strong> 2.5L I-4 DOHC, VVT, 170HP</div>
-        <div class="field"><strong>KM:</strong> 108700</div>
-        <div class="field"><strong>Damage estimate:</strong> $2,966.69</div>
-        
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2009 MAZDA MAZDA6 GS-I4</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2946257" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> i4</div>
-        <div class="field"><strong>VIN:</strong> 1YVHP81A995******</div>
-        <div class="field"><strong>Stock:</strong> 12553797</div>
-        <div class="field"><strong>Sale date:</strong> Mon, Apr 06, 11:00 AM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Edmonton</div>
-        <div class="field"><strong>Lane:</strong> 2</div>
-        <div class="field"><strong>Run:</strong> 26</div>
-        <div class="field"><strong>Location:</strong> IAA Edmonton AB-SALVAGE</div>
-        <div class="field"><strong>Location name:</strong> IAA Edmonton AB</div>
-        <div class="field"><strong>Branding:</strong> SALVAGE</div>
-        <div class="field"><strong>Status:</strong> Run and Drive</div>
-        <div class="field"><strong>Engine:</strong> 2.5L I-4 DOHC, VVT, 170HP</div>
-        <div class="field"><strong>KM:</strong> 256607</div>
-        <div class="field"><strong>Damage estimate:</strong> $6,980.00</div>
-        
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2004 MAZDA MAZDA6 GS-I4/GT-I4</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/30073732" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> i4</div>
-        <div class="field"><strong>VIN:</strong> 1YVFP80C345******</div>
-        <div class="field"><strong>Stock:</strong> 40061172</div>
-        <div class="field"><strong>Sale date:</strong> Wed, Apr 08, 01:00 PM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Nanaimo</div>
-        <div class="field"><strong>Lane:</strong> 3</div>
-        <div class="field"><strong>Run:</strong> 38</div>
-        <div class="field"><strong>Location:</strong> C.R. COASTLINE TOWING &amp; TRANSPORT LTD. SALVAGE</div>
-        <div class="field"><strong>Location name:</strong> C.R. COASTLINE TOWING &amp; TRANSPORT LTD.</div>
-        <div class="field"><strong>Branding:</strong> SALVAGE</div>
-        
-        <div class="field"><strong>Engine:</strong> 2.3L I-4 DOHC, VVT, 160HP</div>
-        
-        
-        
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2025 AUDI Q4 E-TRON</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2916562" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> e-tron</div>
-        <div class="field"><strong>VIN:</strong> WA1GUAFZ4SP******</div>
-        <div class="field"><strong>Stock:</strong> 12526738</div>
-        <div class="field"><strong>Sale date:</strong> Mon, Apr 06, 09:00 AM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Montreal East</div>
-        <div class="field"><strong>Lane:</strong> 1</div>
-        <div class="field"><strong>Run:</strong> 104</div>
-        <div class="field"><strong>Location:</strong> IAA Montreal Laval QC-V.G.A</div>
-        <div class="field"><strong>Location name:</strong> IAA Montreal Laval QC</div>
-        <div class="field"><strong>Branding:</strong> V.G.A</div>
-        <div class="field"><strong>Status:</strong> Starts</div>
-        <div class="field"><strong>Engine:</strong> Electric</div>
-        <div class="field"><strong>KM:</strong> 18596</div>
-        <div class="field"><strong>Damage estimate:</strong> $37,589.84</div>
-        <div class="field"><strong>High pre-bid:</strong> $1,500.00</div>
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2025 AUDI Q4 E-TRON</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2945385" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> e-tron</div>
-        <div class="field"><strong>VIN:</strong> WA1GUAFZ4SP******</div>
-        <div class="field"><strong>Stock:</strong> 12552988</div>
-        <div class="field"><strong>Sale date:</strong> Thu, Apr 09, 09:00 AM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Montreal East</div>
-        <div class="field"><strong>Lane:</strong> 1</div>
-        <div class="field"><strong>Run:</strong> 13</div>
-        <div class="field"><strong>Location:</strong> IAA Montreal Laval Gate 2 QC-V.G.A</div>
-        <div class="field"><strong>Location name:</strong> IAA Montreal Laval Gate 2 QC</div>
-        <div class="field"><strong>Branding:</strong> V.G.A</div>
-        <div class="field"><strong>Status:</strong> Starts</div>
-        <div class="field"><strong>Engine:</strong> Electric</div>
-        <div class="field"><strong>KM:</strong> 7388</div>
-        <div class="field"><strong>Damage estimate:</strong> $24,392.13</div>
-        <div class="field"><strong>High pre-bid:</strong> $7,000.00</div>
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2024 AUDI Q8 E-TRON PREMIUM</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/30072676" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> e-tron</div>
-        <div class="field"><strong>VIN:</strong> WA14ABGE0RB******</div>
-        <div class="field"><strong>Stock:</strong> 40058780</div>
-        <div class="field"><strong>Sale date:</strong> Wed, Apr 08, 01:00 PM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Lower Mainland</div>
-        <div class="field"><strong>Lane:</strong> 1</div>
-        <div class="field"><strong>Run:</strong> 76</div>
-        <div class="field"><strong>Location:</strong> Lower Mainland SALVAGE</div>
-        <div class="field"><strong>Location name:</strong> Lower Mainland</div>
-        <div class="field"><strong>Branding:</strong> SALVAGE</div>
-        <div class="field"><strong>Status:</strong> Stationary</div>
-        <div class="field"><strong>Engine:</strong> Electric</div>
-        <div class="field"><strong>KM:</strong> 15133</div>
-        
-        <div class="field"><strong>High pre-bid:</strong> $4,200.00</div>
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2024 AUDI Q4 E-TRON PREMIUM</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/30073934" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> e-tron</div>
-        <div class="field"><strong>VIN:</strong> WA1K2BFZ0RP******</div>
-        <div class="field"><strong>Stock:</strong> 40061317</div>
-        <div class="field"><strong>Sale date:</strong> Wed, Apr 08, 01:00 PM EDT</div>
-        
-        
-        <div class="field"><strong>Lane:</strong> 1</div>
-        <div class="field"><strong>Run:</strong> 14</div>
-        <div class="field"><strong>Location:</strong> Lower Mainland SALVAGE</div>
-        <div class="field"><strong>Location name:</strong> Lower Mainland</div>
-        <div class="field"><strong>Branding:</strong> SALVAGE</div>
-        <div class="field"><strong>Status:</strong> Run and Drive</div>
-        
-        <div class="field"><strong>KM:</strong> 27229</div>
-        
-        <div class="field"><strong>High pre-bid:</strong> $9,300.00</div>
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2024 AUDI Q8 E-TRON</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2852242" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> e-tron</div>
-        <div class="field"><strong>VIN:</strong> WA1BABGE2RB******</div>
-        <div class="field"><strong>Stock:</strong> 12467014</div>
-        <div class="field"><strong>Sale date:</strong> Tue, Apr 07, 09:00 AM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Montreal West</div>
-        <div class="field"><strong>Lane:</strong> 3</div>
-        <div class="field"><strong>Run:</strong> 97</div>
-        <div class="field"><strong>Location:</strong> IAA Montreal West QC-V.G.A</div>
-        <div class="field"><strong>Location name:</strong> IAA Montreal West QC</div>
-        <div class="field"><strong>Branding:</strong> V.G.A</div>
-        <div class="field"><strong>Status:</strong> Starts</div>
-        <div class="field"><strong>Engine:</strong> U</div>
-        <div class="field"><strong>KM:</strong> 47110</div>
-        <div class="field"><strong>Damage estimate:</strong> $72,040.52</div>
-        <div class="field"><strong>High pre-bid:</strong> $6,100.00</div>
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2023 AUDI Q4 E-TRON PREMIUM</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/30073794" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> e-tron</div>
-        <div class="field"><strong>VIN:</strong> WA1L2AFZXPP******</div>
-        <div class="field"><strong>Stock:</strong> 40053632</div>
-        <div class="field"><strong>Sale date:</strong> Wed, Apr 08, 01:00 PM EDT</div>
-        
-        <div class="field"><strong>City:</strong> Lower Mainland</div>
-        <div class="field"><strong>Lane:</strong> 5</div>
-        <div class="field"><strong>Run:</strong> 60</div>
-        <div class="field"><strong>Location:</strong> Lower Mainland SALVAGE</div>
-        <div class="field"><strong>Location name:</strong> Lower Mainland</div>
-        <div class="field"><strong>Branding:</strong> SALVAGE</div>
-        <div class="field"><strong>Status:</strong> Stationary</div>
-        <div class="field"><strong>Engine:</strong> Electric</div>
-        <div class="field"><strong>KM:</strong> 24606</div>
-        
-        <div class="field"><strong>High pre-bid:</strong> $6,100.00</div>
-        
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-
-    <article class="card">
-      <div class="card-head">
-        <h2>2023 AUDI E-TRON CHRONOS</h2>
-        <div class="links">
-          <a href="https://ca.iaai.com/vehicle-details/2965739" target="_blank" rel="noopener noreferrer">Detail</a>
-          
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="field"><strong>Search term:</strong> e-tron</div>
-        <div class="field"><strong>VIN:</strong> WA1VAAGE1PB******</div>
-        <div class="field"><strong>Stock:</strong> 12571425</div>
-        
-        <div class="field"><strong>Closing date:</strong> Wed, Apr 15, 2026</div>
-        <div class="field"><strong>City:</strong> Montreal East</div>
-        
-        
-        <div class="field"><strong>Location:</strong> IAA Montreal Laval Gate 2 QC-IRRECUPERABLE</div>
-        <div class="field"><strong>Location name:</strong> IAA Montreal Laval Gate 2 QC</div>
-        <div class="field"><strong>Branding:</strong> IRRECUPERABLE</div>
-        <div class="field"><strong>Status:</strong> Starts</div>
-        <div class="field"><strong>Engine:</strong> Electric</div>
-        <div class="field"><strong>KM:</strong> 68778</div>
-        
-        
-        <div class="field"><strong>Buy now:</strong> $9,600.00</div>
-        <div class="field"><strong>Result page:</strong> 1</div>
-      </div>
-    </article>
-  
-  </main>
+      `;
+    }
+
+    function card(item) {
+      const repo = isRepossessed(item);
+
+      const badges = [
+        item.branding ? `<span class="badge ${brandingClass(item.branding)}">${safe(item.branding)}</span>` : '',
+        item.functional_status ? `<span class="badge ${statusClass(item.functional_status)}">${safe(item.functional_status)}</span>` : '',
+        repo ? '<span class="badge repo">REPOSSESSED</span>' : ''
+      ].filter(Boolean).join('');
+
+      return `
+        <article class="card ${repo ? 'repossessed' : ''}">
+          <div class="card-top">
+            <div class="card-title">
+              <h2>${safe(item.title) || 'Untitled'}</h2>
+              <div class="badges">${badges}</div>
+            </div>
+
+            <div class="links">
+              ${item.detail_page ? `<a href="${safe(item.detail_page)}" target="_blank" rel="noopener noreferrer">Detail</a>` : ''}
+              ${item.image_page ? `<a href="${safe(item.image_page)}" target="_blank" rel="noopener noreferrer">Images</a>` : ''}
+            </div>
+          </div>
+
+          <div class="grid">
+            ${field('VIN', item.vin)}
+            ${field('Stock', item.stock_number)}
+            ${field('Sale date', item.sale_datetime)}
+            ${field('Closing date', item.closing_date)}
+            ${field('City', item.city)}
+            ${field('Lane', item.lane)}
+            ${field('Run', item.run)}
+            ${field('Location', item.location)}
+            ${field('Location name', item.location_name)}
+            ${field('Engine', item.engine)}
+            ${field('KM', item.odometer_km)}
+            ${field('Damage estimate', item.damage_estimate ? '$' + item.damage_estimate : '')}
+            ${field('High pre-bid', item.high_pre_bid ? '$' + item.high_pre_bid : '')}
+            ${field('Buy now', item.buy_now ? '$' + item.buy_now : '')}
+            ${field('Search term', item.search_term)}
+            ${field('Result page', item.result_page)}
+          </div>
+        </article>
+      `;
+    }
+
+    function uniqueSorted(values) {
+      return [...new Set(values.map(safe).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+    }
+
+    function fillSelect(id, values) {
+      const select = document.getElementById(id);
+      const current = select.value;
+      const options = ['<option value="">All</option>']
+        .concat(values.map(v => `<option value="${v.replace(/"/g, '&quot;')}">${v}</option>`))
+        .join('');
+      select.innerHTML = options;
+      if (values.includes(current)) {
+        select.value = current;
+      }
+    }
+
+    fillSelect('vehicleFilter', uniqueSorted(items.map(vehicleKey)));
+    fillSelect('locationFilter', uniqueSorted(items.map(i => i.location_name || i.location)));
+    fillSelect('statusFilter', uniqueSorted(items.map(i => i.functional_status)));
+    fillSelect('brandingFilter', uniqueSorted(items.map(i => i.branding)));
+
+    function applyFilters() {
+      const search = lower(document.getElementById('searchBox').value);
+      const sortBy = document.getElementById('sortBy').value;
+      const vehicleFilter = document.getElementById('vehicleFilter').value;
+      const locationFilter = document.getElementById('locationFilter').value;
+      const statusFilter = document.getElementById('statusFilter').value;
+      const brandingFilter = document.getElementById('brandingFilter').value;
+      const repoFilter = document.getElementById('repoFilter').value;
+
+      let filtered = items.filter(item => {
+        const repo = isRepossessed(item);
+
+        if (vehicleFilter && vehicleKey(item) !== vehicleFilter) return false;
+        if (locationFilter && safe(item.location_name || item.location) !== locationFilter) return false;
+        if (statusFilter && safe(item.functional_status) !== statusFilter) return false;
+        if (brandingFilter && safe(item.branding) !== brandingFilter) return false;
+        if (repoFilter === 'yes' && !repo) return false;
+        if (repoFilter === 'no' && repo) return false;
+
+        if (search) {
+          const haystack = [
+            item.title,
+            item.vin,
+            item.stock_number,
+            item.city,
+            item.location,
+            item.location_name,
+            item.branding,
+            item.functional_status,
+            item.engine,
+            item.raw_text
+          ].map(safe).join(' ').toLowerCase();
+
+          if (!haystack.includes(search)) return false;
+        }
+
+        return true;
+      });
+
+      filtered.sort((a, b) => {
+        switch (sortBy) {
+          case 'title-desc':
+            return safe(b.title).localeCompare(safe(a.title));
+          case 'location-asc':
+            return safe(a.location_name || a.location).localeCompare(safe(b.location_name || b.location));
+          case 'branding-asc':
+            return safe(a.branding).localeCompare(safe(b.branding));
+          case 'status-asc':
+            return safe(a.functional_status).localeCompare(safe(b.functional_status));
+          case 'damage-desc':
+            return (moneyNumber(b.damage_estimate) ?? -1) - (moneyNumber(a.damage_estimate) ?? -1);
+          case 'damage-asc':
+            return (moneyNumber(a.damage_estimate) ?? Number.MAX_SAFE_INTEGER) - (moneyNumber(b.damage_estimate) ?? Number.MAX_SAFE_INTEGER);
+          case 'bid-desc':
+            return (moneyNumber(b.high_pre_bid) ?? -1) - (moneyNumber(a.high_pre_bid) ?? -1);
+          case 'bid-asc':
+            return (moneyNumber(a.high_pre_bid) ?? Number.MAX_SAFE_INTEGER) - (moneyNumber(b.high_pre_bid) ?? Number.MAX_SAFE_INTEGER);
+          case 'km-desc':
+            return (kmNumber(b.odometer_km) ?? -1) - (kmNumber(a.odometer_km) ?? -1);
+          case 'km-asc':
+            return (kmNumber(a.odometer_km) ?? Number.MAX_SAFE_INTEGER) - (kmNumber(b.odometer_km) ?? Number.MAX_SAFE_INTEGER);
+          case 'title-asc':
+          default:
+            return safe(a.title).localeCompare(safe(b.title));
+        }
+      });
+
+      const results = document.getElementById('results');
+      const countValue = document.getElementById('countValue');
+      const summaryText = document.getElementById('summaryText');
+
+      countValue.textContent = String(filtered.length);
+
+      summaryText.textContent = [
+        vehicleFilter ? 'Vehicle: ' + vehicleFilter : '',
+        locationFilter ? 'Location: ' + locationFilter : '',
+        statusFilter ? 'Status: ' + statusFilter : '',
+        brandingFilter ? 'Branding: ' + brandingFilter : '',
+        repoFilter === 'yes' ? 'Repossessed only' : '',
+        repoFilter === 'no' ? 'Repossessed excluded' : '',
+        search ? 'Search active' : ''
+      ].filter(Boolean).join(' • ') || 'Showing all items';
+
+      if (!filtered.length) {
+        results.innerHTML = '<div class="empty">No items match the current filters.</div>';
+        return;
+      }
+
+      results.innerHTML = filtered.map(card).join('');
+    }
+
+    ['searchBox', 'sortBy', 'vehicleFilter', 'locationFilter', 'statusFilter', 'brandingFilter', 'repoFilter']
+      .forEach(id => {
+        document.getElementById(id).addEventListener('input', applyFilters);
+        document.getElementById(id).addEventListener('change', applyFilters);
+      });
+
+    applyFilters();
+  </script>
 </body>
 </html>
