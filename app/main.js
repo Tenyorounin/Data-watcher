@@ -65,13 +65,11 @@ function extractBrandingFromLocation(location) {
   const normalizedLocation = normalizeLine(location);
   if (!normalizedLocation) return '';
 
-  // Case 1: final suffix after a hyphen, like ON-SALVAGE, ON-NOT BRANDED, QC-V.G.A
   const hyphenMatch = normalizedLocation.match(/-([A-Z0-9][A-Z0-9.\s]+)$/i);
   if (hyphenMatch) {
     return normalizeLine(hyphenMatch[1]);
   }
 
-  // Case 2: trailing plain status with no hyphen, like "Fraser Valley SALVAGE"
   const knownBrandings = [
     'NOT BRANDED',
     'SALVAGE',
@@ -188,12 +186,160 @@ function buildBlocksFromLines(lines) {
   return blocks;
 }
 
+async function autoScroll(page) {
+  await page.evaluate(async () => {
+    await new Promise(resolve => {
+      let totalHeight = 0;
+      const distance = 600;
+      const timer = setInterval(() => {
+        window.scrollBy(0, distance);
+        totalHeight += distance;
+
+        const scrollHeight = document.body.scrollHeight;
+        if (totalHeight >= scrollHeight) {
+          clearInterval(timer);
+          window.scrollTo(0, 0);
+          resolve();
+        }
+      }, 250);
+    });
+  });
+}
+
+async function collectPageData(page, term, pageNumber) {
+  await page.waitForTimeout(2500);
+  await autoScroll(page);
+  await page.waitForTimeout(2500);
+
+  const bodyText = await page.locator('body').innerText();
+  const lines = splitLines(bodyText);
+  const blocks = buildBlocksFromLines(lines);
+
+  console.log(`Found ${blocks.length} blocks for ${term} on page ${pageNumber}`);
+
+  const detailLinks = await page.$$eval('a[href*="/vehicle-details/"]', nodes =>
+    Array.from(new Set(nodes.map(n => n.href).filter(Boolean)))
+  );
+
+  console.log(`Found ${detailLinks.length} detail links for ${term} on page ${pageNumber}`);
+
+  const imageLinks = await page.$$eval('[href]', nodes =>
+    nodes
+      .filter(n => ((n.innerText || '').replace(/\s+/g, ' ').trim().toLowerCase() === 'view all images'))
+      .map(n => n.getAttribute('href') || '')
+      .filter(Boolean)
+  );
+
+  console.log(`Found ${imageLinks.length} image links for ${term} on page ${pageNumber}`);
+
+  const count = Math.min(blocks.length, detailLinks.length);
+  const pageData = [];
+
+  for (let i = 0; i < count; i++) {
+    const parsed = parseBlock(blocks[i]);
+    pageData.push({
+      search_term: term,
+      result_page: pageNumber,
+      detail_page: detailLinks[i],
+      image_page: imageLinks[i] || '',
+      ...parsed
+    });
+  }
+
+  return {
+    pageData,
+    signature: detailLinks.join('|')
+  };
+}
+
+async function goToNextPage(page) {
+  const currentUrl = page.url();
+
+  // Try explicit Next controls first
+  const nextCandidates = [
+    page.getByRole('link', { name: /next/i }),
+    page.getByRole('button', { name: /next/i }),
+    page.locator('a[aria-label*="next" i], button[aria-label*="next" i]'),
+    page.locator('a[title*="next" i], button[title*="next" i]'),
+    page.locator('a:has-text("Next"), button:has-text("Next")')
+  ];
+
+  for (const locator of nextCandidates) {
+    try {
+      const count = await locator.count();
+      for (let i = 0; i < count; i++) {
+        const item = locator.nth(i);
+        if (await item.isVisible().catch(() => false)) {
+          await Promise.all([
+            page.waitForLoadState('domcontentloaded').catch(() => {}),
+            item.click({ timeout: 5000 })
+          ]);
+          await page.waitForTimeout(3000);
+          if (page.url() !== currentUrl) return true;
+          return true;
+        }
+      }
+    } catch (_) {}
+  }
+
+  // Fallback: infer next numeric page from current selected page
+  const nextHref = await page.evaluate(() => {
+    const current =
+      document.querySelector('[aria-current="page"]') ||
+      document.querySelector('.active') ||
+      document.querySelector('.selected') ||
+      document.querySelector('.current');
+
+    if (current) {
+      const currentNum = parseInt((current.textContent || '').trim(), 10);
+      if (!Number.isNaN(currentNum)) {
+        const links = Array.from(document.querySelectorAll('a[href]'));
+        const nextNumeric = links.find(a => parseInt((a.textContent || '').trim(), 10) === currentNum + 1);
+        if (nextNumeric) return nextNumeric.href;
+      }
+    }
+
+    // last fallback: look for a visible pagination-like numeric link after "1"
+    const links = Array.from(document.querySelectorAll('a[href]'));
+    const candidates = links
+      .map(a => ({
+        text: (a.textContent || '').trim(),
+        href: a.href || ''
+      }))
+      .filter(x => /^\d+$/.test(x.text));
+
+    if (candidates.length > 0) {
+      // Just take the smallest numeric link greater than 1
+      const sorted = candidates
+        .map(x => ({ ...x, num: parseInt(x.text, 10) }))
+        .sort((a, b) => a.num - b.num);
+
+      const candidate = sorted.find(x => x.num > 1);
+      return candidate ? candidate.href : '';
+    }
+
+    return '';
+  });
+
+  if (nextHref) {
+    await page.goto(nextHref, {
+      waitUntil: 'domcontentloaded',
+      timeout: 60000
+    });
+    await page.waitForTimeout(3000);
+    return true;
+  }
+
+  return false;
+}
+
 (async () => {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
 
   const terms = JSON.parse(fs.readFileSync('terms.json', 'utf8'));
   const allData = [];
+  const seenSignatures = new Set();
 
   try {
     for (const term of terms) {
@@ -213,44 +359,34 @@ function buildBlocksFromLines(lines) {
 
       await page.waitForTimeout(7000);
 
-      const bodyText = await page.locator('body').innerText();
-      const lines = splitLines(bodyText);
-      const blocks = buildBlocksFromLines(lines);
+      let pageNumber = 1;
+      const maxPages = 20;
 
-      console.log(`Found ${blocks.length} blocks for ${term}`);
+      while (pageNumber <= maxPages) {
+        const { pageData, signature } = await collectPageData(page, term, pageNumber);
 
-      const detailLinks = await page.$$eval('a[href*="/vehicle-details/"]', nodes =>
-        Array.from(new Set(nodes.map(n => n.href).filter(Boolean)))
-      );
+        if (!signature || seenSignatures.has(`${term}::${signature}`)) {
+          console.log(`Stopping ${term} at page ${pageNumber} because the page signature repeated or was empty.`);
+          break;
+        }
 
-      console.log(`Found ${detailLinks.length} detail links for ${term}`);
+        seenSignatures.add(`${term}::${signature}`);
+        allData.push(...pageData);
 
-      const imageLinks = await page.$$eval('[href]', nodes =>
-        nodes
-          .filter(n => ((n.innerText || '').replace(/\s+/g, ' ').trim().toLowerCase() === 'view all images'))
-          .map(n => n.getAttribute('href') || '')
-          .filter(Boolean)
-      );
+        const safeTerm = term.replace(/[^a-z0-9]/gi, '_');
+        await page.screenshot({
+          path: `debug-${safeTerm}-p${pageNumber}.png`,
+          fullPage: true
+        }).catch(() => {});
 
-      console.log(`Found ${imageLinks.length} image links for ${term}`);
+        const moved = await goToNextPage(page);
+        if (!moved) {
+          console.log(`No next page found for ${term} after page ${pageNumber}.`);
+          break;
+        }
 
-      const count = Math.min(blocks.length, detailLinks.length);
-
-      for (let i = 0; i < count; i++) {
-        const parsed = parseBlock(blocks[i]);
-        allData.push({
-          search_term: term,
-          detail_page: detailLinks[i],
-          image_page: imageLinks[i] || '',
-          ...parsed
-        });
+        pageNumber += 1;
       }
-
-      const safeTerm = term.replace(/[^a-z0-9]/gi, '_');
-      await page.screenshot({
-        path: `debug-${safeTerm}.png`,
-        fullPage: true
-      }).catch(() => {});
     }
 
     const unique = {};
