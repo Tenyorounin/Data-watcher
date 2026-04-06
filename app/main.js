@@ -1,4 +1,4 @@
-const { chromium } = require('playwright');
+ const { chromium } = require('playwright');
 const fs = require('fs');
 
 function cleanText(value) {
@@ -22,13 +22,34 @@ function splitLines(text) {
 
 function isTitleLine(line) {
   const text = normalizeLine(line);
-  const match = text.match(/^(\d{4})\s+[A-Z0-9]/i);
+  const match = text.match(/^(\d{4})\s+(.+)$/i);
   if (!match) return false;
 
   const year = Number(match[1]);
+  const rest = match[2] || '';
   const currentYear = new Date().getFullYear();
 
-  return year >= 1980 && year <= currentYear + 2;
+  if (year < 1980 || year > currentYear + 2) return false;
+
+  const badPatterns = [
+    /IAA Holdings/i,
+    /All Rights Reserved/i,
+    /Auction Rules/i,
+    /Privacy Policy/i,
+    /SMS Terms/i,
+    /Accessibility/i,
+    /Cookie Preferences/i,
+    /Manage Cookies/i,
+    /I Understand/i
+  ];
+
+  if (badPatterns.some(rx => rx.test(text))) return false;
+
+  // Vehicle title should look like mostly uppercase make/model text,
+  // not a sentence/legal/footer string.
+  if (!/^[A-Z0-9][A-Z0-9\s\-./()+,&]+$/i.test(rest)) return false;
+
+  return true;
 }
 
 function looksLikeNoise(line) {
@@ -65,7 +86,8 @@ function looksLikeNoise(line) {
     'AFC',
     'Register Now',
     'Manage Cookies',
-    'Download'
+    'Download',
+    'I Understand'
   ].includes(line) || /^\d+Vehicles$/i.test(line);
 }
 
@@ -77,6 +99,7 @@ function trimJoinedText(text) {
   out = out.replace(/\s+COMPANY\s+About Us.*$/i, '');
   out = out.replace(/\s+HELP\s+How to Buy.*$/i, '');
   out = out.replace(/\s+SITE PREFERENCES\s+English.*$/i, '');
+  out = out.replace(/\s+\d{4}\s+IAA Holdings, LLC\..*$/i, '');
 
   return out.trim();
 }
@@ -231,9 +254,6 @@ function buildBlocksFromLines(lines) {
 
     if (current.length) {
       current.push(line);
-    } else {
-      // Only preserve malformed orphan blocks after results have started.
-      blocks.push([line]);
     }
   }
 
@@ -301,19 +321,6 @@ async function collectPageData(page, term, pageNumber) {
       detail_page: detailLinks[i],
       image_page: imageLinks[i] || '',
       ...parsed
-    });
-  }
-
-  for (let i = count; i < blocks.length; i++) {
-    const parsed = parseBlock(blocks[i]);
-    pageData.push({
-      search_term: term,
-      result_page: pageNumber,
-      detail_page: '',
-      image_page: '',
-      ...parsed,
-      parse_issue: true,
-      parse_issue_reason: parsed.parse_issue_reason || 'block_without_matching_detail_link'
     });
   }
 
@@ -456,19 +463,8 @@ async function goToNextPage(page) {
       }
     }
 
-    const final = allData.map(item => {
-      if (!item.title && item.raw_text) {
-        return {
-          ...item,
-          parse_issue: true,
-          parse_issue_reason: item.parse_issue_reason || 'missing_valid_title'
-        };
-      }
-      return item;
-    });
-
-    fs.writeFileSync('data.json', JSON.stringify(final, null, 2));
-    console.log(`Saved ${final.length} parsed records`);
+    fs.writeFileSync('data.json', JSON.stringify(allData, null, 2));
+    console.log(`Saved ${allData.length} parsed records`);
   } catch (err) {
     console.error('Task failed:', err);
     await page.screenshot({ path: 'failure.png', fullPage: true }).catch(() => {});
