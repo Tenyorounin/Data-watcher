@@ -492,6 +492,60 @@ const html = `<!doctype html>
       return combined.includes('repossessed') || combined.includes('repo');
     }
 
+function isLikelyGasVehicle(item) {
+      const engine = safe(item.engine).toLowerCase();
+      const raw = safe(item.raw_text).toLowerCase();
+
+      // If engine clearly indicates EV/unknown-electric style, keep it.
+      if (
+        engine === 'electric' ||
+        engine === 'n' ||
+        engine === 'u u' ||
+        engine === 'u x'
+      ) {
+        return false;
+      }
+
+      if (
+        raw.includes('engine: electric') ||
+        raw.includes('fuel: electric') ||
+        raw.includes('fuel type: electric')
+      ) {
+        return false;
+      }
+
+      if (
+        raw.includes('engine: n') ||
+        raw.includes('fuel: n') ||
+        raw.includes('fuel type: n')
+      ) {
+        return false;
+      }
+
+      // If engine/fuel text exists and is not electric/n/unknown-electric style,
+      // treat it as likely gas.
+      if (engine && engine !== 'electric' && engine !== 'n' && engine !== 'u u' && engine !== 'u x') {
+        return true;
+      }
+
+      if (
+        raw.includes('fuel: gas') ||
+        raw.includes('fuel: gasoline') ||
+        raw.includes('fuel type: gas') ||
+        raw.includes('fuel type: gasoline') ||
+        raw.includes('engine: gas') ||
+        raw.includes('engine: gasoline') ||
+        raw.includes('engine: diesel') ||
+        raw.includes('fuel: diesel') ||
+        raw.includes('fuel type: diesel') ||
+        raw.includes('hybrid')
+      ) {
+        return true;
+      }
+
+      return false;
+    }
+    
     function field(label, value) {
       if (!safe(value)) return '';
       return \`
