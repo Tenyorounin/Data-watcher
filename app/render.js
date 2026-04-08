@@ -329,7 +329,7 @@ const html = `<!doctype html>
       }
 
       .controls-row.second {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(5, minmax(0, 1fr));
       }
 
       .grid {
@@ -417,6 +417,14 @@ const html = `<!doctype html>
             <option value="no">Exclude repossessed</option>
           </select>
         </div>
+
+        <div class="control">
+          <label for="hideGasFilter">Fuel type</label>
+          <select id="hideGasFilter">
+            <option value="yes" selected>Hide likely gas vehicles</option>
+            <option value="no">Show all vehicles</option>
+          </select>
+        </div>
       </div>
     </div>
 
@@ -457,46 +465,10 @@ const html = `<!doctype html>
       return m ? m[1] : title;
     }
 
-    function brandingClass(value) {
-      const v = lower(value);
-      if (!v) return 'branding-default';
-      if (v.includes('not branded') || v.includes('clean')) return 'branding-green';
-      if (v.includes('salvage') || v.includes('v.g.a') || v === 'vga') return 'branding-yellow';
-      if (
-        v.includes('irreparable') ||
-        v.includes('irrecuperable') ||
-        v.includes('irrécupérable') ||
-        v.includes('non-repairable') ||
-        v.includes('non repairable')
-      ) return 'branding-red';
-      return 'branding-default';
-    }
-
-    function statusClass(value) {
-      const v = lower(value);
-      if (v === 'run and drive') return 'status-blue';
-      if (v === 'starts') return 'status-yellow';
-      if (v === 'stationary') return 'status-orange';
-      return 'status-default';
-    }
-
-    function isRepossessed(item) {
-      const combined = [
-        item.title,
-        item.raw_text,
-        item.branding,
-        item.location,
-        item.location_name
-      ].map(safe).join(' ').toLowerCase();
-
-      return combined.includes('repossessed') || combined.includes('repo');
-    }
-
-function isLikelyGasVehicle(item) {
+    function isLikelyGasVehicle(item) {
       const engine = safe(item.engine).toLowerCase();
       const raw = safe(item.raw_text).toLowerCase();
 
-      // If engine clearly indicates EV/unknown-electric style, keep it.
       if (
         engine === 'electric' ||
         engine === 'n' ||
@@ -522,8 +494,6 @@ function isLikelyGasVehicle(item) {
         return false;
       }
 
-      // If engine/fuel text exists and is not electric/n/unknown-electric style,
-      // treat it as likely gas.
       if (engine && engine !== 'electric' && engine !== 'n' && engine !== 'u u' && engine !== 'u x') {
         return true;
       }
@@ -545,7 +515,7 @@ function isLikelyGasVehicle(item) {
 
       return false;
     }
-    
+
     function field(label, value) {
       if (!safe(value)) return '';
       return \`
@@ -642,6 +612,7 @@ function isLikelyGasVehicle(item) {
       const statusFilter = document.getElementById('statusFilter').value;
       const brandingFilter = document.getElementById('brandingFilter').value;
       const repoFilter = document.getElementById('repoFilter').value;
+      const hideGasFilter = document.getElementById('hideGasFilter').value;
 
       let filtered = items.filter(item => {
         const repo = isRepossessed(item);
@@ -652,6 +623,7 @@ function isLikelyGasVehicle(item) {
         if (brandingFilter && safe(item.branding) !== brandingFilter) return false;
         if (repoFilter === 'yes' && !repo) return false;
         if (repoFilter === 'no' && repo) return false;
+        if (hideGasFilter === 'yes' && isLikelyGasVehicle(item)) return false;
 
         if (search) {
           const haystack = [
@@ -713,6 +685,7 @@ function isLikelyGasVehicle(item) {
         brandingFilter ? 'Branding: ' + brandingFilter : '',
         repoFilter === 'yes' ? 'Repossessed only' : '',
         repoFilter === 'no' ? 'Repossessed excluded' : '',
+        hideGasFilter === 'yes' ? 'Gas hidden' : 'Gas shown',
         search ? 'Search active' : ''
       ].filter(Boolean).join(' • ') || 'Showing all items';
 
@@ -724,7 +697,7 @@ function isLikelyGasVehicle(item) {
       results.innerHTML = filtered.map(card).join('');
     }
 
-    ['searchBox', 'sortBy', 'vehicleFilter', 'locationFilter', 'statusFilter', 'brandingFilter', 'repoFilter']
+    ['searchBox', 'sortBy', 'vehicleFilter', 'locationFilter', 'statusFilter', 'brandingFilter', 'repoFilter', 'hideGasFilter']
       .forEach(id => {
         document.getElementById(id).addEventListener('input', applyFilters);
         document.getElementById(id).addEventListener('change', applyFilters);
