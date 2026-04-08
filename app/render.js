@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const { brandingClass, statusClass, isRepossessed } = require('./render_helpers');
 
 const inputPath = path.join(__dirname, 'data.json');
 const outputDir = path.join(__dirname, '..', 'docs');
@@ -465,6 +464,41 @@ const html = `<!doctype html>
       return m ? m[1] : title;
     }
 
+    function brandingClass(value) {
+      const v = lower(value);
+      if (!v) return 'branding-default';
+      if (v.includes('not branded') || v.includes('clean')) return 'branding-green';
+      if (v.includes('salvage') || v.includes('v.g.a') || v === 'vga') return 'branding-yellow';
+      if (
+        v.includes('irreparable') ||
+        v.includes('irrecuperable') ||
+        v.includes('irrécupérable') ||
+        v.includes('non-repairable') ||
+        v.includes('non repairable')
+      ) return 'branding-red';
+      return 'branding-default';
+    }
+
+    function statusClass(value) {
+      const v = lower(value);
+      if (v === 'run and drive') return 'status-blue';
+      if (v === 'starts') return 'status-yellow';
+      if (v === 'stationary') return 'status-orange';
+      return 'status-default';
+    }
+
+    function isRepossessed(item) {
+      const combined = [
+        item.title,
+        item.raw_text,
+        item.branding,
+        item.location,
+        item.location_name
+      ].map(safe).join(' ').toLowerCase();
+
+      return combined.includes('repossessed') || combined.includes('repo');
+    }
+
     function isLikelyGasVehicle(item) {
       const engine = safe(item.engine).toLowerCase();
       const raw = safe(item.raw_text).toLowerCase();
@@ -686,29 +720,4 @@ const html = `<!doctype html>
         repoFilter === 'yes' ? 'Repossessed only' : '',
         repoFilter === 'no' ? 'Repossessed excluded' : '',
         hideGasFilter === 'yes' ? 'Gas hidden' : 'Gas shown',
-        search ? 'Search active' : ''
-      ].filter(Boolean).join(' • ') || 'Showing all items';
-
-      if (!filtered.length) {
-        results.innerHTML = '<div class="empty">No items match the current filters.</div>';
-        return;
-      }
-
-      results.innerHTML = filtered.map(card).join('');
-    }
-
-    ['searchBox', 'sortBy', 'vehicleFilter', 'locationFilter', 'statusFilter', 'brandingFilter', 'repoFilter', 'hideGasFilter']
-      .forEach(id => {
-        document.getElementById(id).addEventListener('input', applyFilters);
-        document.getElementById(id).addEventListener('change', applyFilters);
-      });
-
-    applyFilters();
-  </script>
-</body>
-</html>`;
-
-fs.mkdirSync(outputDir, { recursive: true });
-fs.writeFileSync(outputPath, html, 'utf8');
-
-console.log(`Wrote ${outputPath}`);
+  
