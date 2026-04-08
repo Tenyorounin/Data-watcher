@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { brandingClass, statusClass, isRepossessed } = require('./render_helpers');
 
 const inputPath = path.join(__dirname, 'data.json');
 const outputDir = path.join(__dirname, '..', 'docs');
