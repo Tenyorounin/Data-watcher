@@ -457,6 +457,9 @@ module.exports = function pageTemplate(itemsJson) {
     const items = ${itemsJson};
   </script>
   <script src="page_logic.js"></script>
+  <script>
+    initPage(items);
+  </script>
 </body>
 </html>`;
 };
