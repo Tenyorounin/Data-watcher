@@ -552,30 +552,20 @@ const html = `<!doctype html>
 
     function field(label, value) {
       if (!safe(value)) return '';
-      return \`
-        <div class="field">
-          <span class="field-label">\${label}</span>
-          \${safe(value)}
-        </div>
-      \`;
+      return '<div class="field"><span class="field-label">' + safe(label) + '</span>' + safe(value) + '</div>';
     }
 
     function miniField(label, value) {
       if (!safe(value)) return '';
-      return \`
-        <div class="mini-field">
-          <span class="mini-label">\${label}</span>
-          <div class="mini-value">\${safe(value)}</div>
-        </div>
-      \`;
+      return '<div class="mini-field"><span class="mini-label">' + safe(label) + '</span><div class="mini-value">' + safe(value) + '</div></div>';
     }
 
     function card(item) {
       const repo = isRepossessed(item);
 
       const badges = [
-        item.branding ? \`<span class="badge \${brandingClass(item.branding)}">\${safe(item.branding)}</span>\` : '',
-        item.functional_status ? \`<span class="badge \${statusClass(item.functional_status)}">\${safe(item.functional_status)}</span>\` : '',
+        item.branding ? '<span class="badge ' + brandingClass(item.branding) + '">' + safe(item.branding) + '</span>' : '',
+        item.functional_status ? '<span class="badge ' + statusClass(item.functional_status) + '">' + safe(item.functional_status) + '</span>' : '',
         repo ? '<span class="badge repo">REPOSSESSED</span>' : ''
       ].filter(Boolean).join('');
 
@@ -586,35 +576,32 @@ const html = `<!doctype html>
         miniField('VIN', item.vin)
       ].filter(Boolean).join('');
 
-      return \`
-        <article class="card \${repo ? 'repossessed' : ''}">
-          <div class="card-top">
-            <div class="card-title">
-              <h2>\${safe(item.title) || 'Untitled'}</h2>
-              <div class="badges">\${badges}</div>
-            </div>
-
-            <div class="top-meta-row">\${topMeta}</div>
-
-            <div class="links">
-              \${item.detail_page ? \`<a href="\${safe(item.detail_page)}" target="_blank" rel="noopener noreferrer">Detail</a>\` : ''}
-              \${item.image_page ? \`<a href="\${safe(item.image_page)}" target="_blank" rel="noopener noreferrer">Images</a>\` : ''}
-            </div>
-          </div>
-
-          <div class="grid">
-            \${field('Sale date', item.sale_datetime)}
-            \${field('Closing date', item.closing_date)}
-            \${field('City', item.city)}
-            \${field('Location name', item.location_name)}
-            \${field('KM', item.odometer_km)}
-            \${field('Damage estimate', item.damage_estimate ? '$' + item.damage_estimate : '')}
-            \${field('High pre-bid', item.high_pre_bid ? '$' + item.high_pre_bid : '')}
-            \${field('Buy now', item.buy_now ? '$' + item.buy_now : '')}
-            \${field('Search term', item.search_term)}
-          </div>
-        </article>
-      \`;
+      return (
+        '<article class="card ' + (repo ? 'repossessed' : '') + '">' +
+          '<div class="card-top">' +
+            '<div class="card-title">' +
+              '<h2>' + (safe(item.title) || 'Untitled') + '</h2>' +
+              '<div class="badges">' + badges + '</div>' +
+            '</div>' +
+            '<div class="top-meta-row">' + topMeta + '</div>' +
+            '<div class="links">' +
+              (item.detail_page ? '<a href="' + safe(item.detail_page) + '" target="_blank" rel="noopener noreferrer">Detail</a>' : '') +
+              (item.image_page ? '<a href="' + safe(item.image_page) + '" target="_blank" rel="noopener noreferrer">Images</a>' : '') +
+            '</div>' +
+          '</div>' +
+          '<div class="grid">' +
+            field('Sale date', item.sale_datetime) +
+            field('Closing date', item.closing_date) +
+            field('City', item.city) +
+            field('Location name', item.location_name) +
+            field('KM', item.odometer_km) +
+            field('Damage estimate', item.damage_estimate ? '$' + item.damage_estimate : '') +
+            field('High pre-bid', item.high_pre_bid ? '$' + item.high_pre_bid : '') +
+            field('Buy now', item.buy_now ? '$' + item.buy_now : '') +
+            field('Search term', item.search_term) +
+          '</div>' +
+        '</article>'
+      );
     }
 
     function uniqueSorted(values) {
@@ -625,7 +612,7 @@ const html = `<!doctype html>
       const select = document.getElementById(id);
       const current = select.value;
       const options = ['<option value="">All</option>']
-        .concat(values.map(v => \`<option value="\${v.replace(/"/g, '&quot;')}">\${v}</option>\`))
+        .concat(values.map(v => '<option value="' + v.replace(/"/g, '&quot;') + '">' + v + '</option>'))
         .join('');
       select.innerHTML = options;
       if (values.includes(current)) {
@@ -720,4 +707,30 @@ const html = `<!doctype html>
         repoFilter === 'yes' ? 'Repossessed only' : '',
         repoFilter === 'no' ? 'Repossessed excluded' : '',
         hideGasFilter === 'yes' ? 'Gas hidden' : 'Gas shown',
-  
+        search ? 'Search active' : ''
+      ].filter(Boolean).join(' • ') || 'Showing all items';
+
+      if (!filtered.length) {
+        results.innerHTML = '<div class="empty">No items match the current filters.</div>';
+        return;
+      }
+
+      results.innerHTML = filtered.map(card).join('');
+    }
+
+    ['searchBox', 'sortBy', 'vehicleFilter', 'locationFilter', 'statusFilter', 'brandingFilter', 'repoFilter', 'hideGasFilter']
+      .forEach(id => {
+        document.getElementById(id).addEventListener('input', applyFilters);
+        document.getElementById(id).addEventListener('change', applyFilters);
+      });
+
+    applyFilters();
+  </script>
+</body>
+</html>`;
+
+fs.mkdirSync(outputDir, { recursive: true });
+fs.writeFileSync(outputPath, html, 'utf8');
+
+console.log(`Wrote ${outputPath}`);
+   
