@@ -1,4 +1,4 @@
-module.exports = function pageTemplate(itemsJson) {
+module.exports = function pageTemplate() {
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -453,12 +453,25 @@ module.exports = function pageTemplate(itemsJson) {
 
   <main id="results"></main>
 
-  <script>
-    const items = ${itemsJson};
-  </script>
   <script src="page_logic.js"></script>
   <script>
-    initPage(items);
+    fetch('./data.json')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to load data.json');
+        }
+        return response.json();
+      })
+      .then(items => {
+        initPage(items);
+      })
+      .catch(err => {
+        const results = document.getElementById('results');
+        const summaryText = document.getElementById('summaryText');
+        summaryText.textContent = 'Failed to load data';
+        results.innerHTML = '<div class="empty">Failed to load data.json: ' + String(err.message || err) + '</div>';
+        console.error(err);
+      });
   </script>
 </body>
 </html>`;
