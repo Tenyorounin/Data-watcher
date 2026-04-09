@@ -1,27 +1,462 @@
-module.exports = function template(dataScript) {
-  return `
-<!doctype html>
-<html>
+module.exports = function pageTemplate(itemsJson) {
+  return `<!doctype html>
+<html lang="en">
 <head>
-  <title>Listings</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Daily Listings</title>
+  <style>
+    :root {
+      --bg: #f3f4f6;
+      --panel: #ffffff;
+      --panel-2: #f9fafb;
+      --text: #111827;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --accent: #111827;
+
+      --green-bg: #dcfce7;
+      --green-text: #166534;
+
+      --yellow-bg: #fef3c7;
+      --yellow-text: #92400e;
+
+      --red-bg: #fee2e2;
+      --red-text: #b91c1c;
+
+      --blue-bg: #dbeafe;
+      --blue-text: #1d4ed8;
+
+      --orange-bg: #ffedd5;
+      --orange-text: #c2410c;
+
+      --repo-bg: #fce7f3;
+      --repo-text: #9d174d;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    header {
+      background: var(--accent);
+      color: white;
+      padding: 12px 14px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    }
+
+    header h1 {
+      margin: 0 0 4px 0;
+      font-size: 20px;
+      line-height: 1.2;
+    }
+
+    .meta {
+      font-size: 13px;
+      opacity: 0.92;
+    }
+
+    .toolbar {
+      padding: 10px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .controls {
+      background: var(--panel);
+      border-radius: 12px;
+      padding: 10px;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.08);
+      border: 1px solid var(--border);
+      display: grid;
+      gap: 10px;
+    }
+
+    .controls-row {
+      display: grid;
+      gap: 8px;
+    }
+
+    .control {
+      display: grid;
+      gap: 4px;
+    }
+
+    .control label {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .control input,
+    .control select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 8px 10px;
+      font-size: 13px;
+      background: white;
+      color: var(--text);
+    }
+
+    .summary {
+      background: var(--panel);
+      border-radius: 12px;
+      padding: 10px 12px;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.08);
+      border: 1px solid var(--border);
+      display: grid;
+      gap: 5px;
+      font-size: 13px;
+    }
+
+    .summary strong {
+      font-size: 17px;
+    }
+
+    main {
+      padding: 0 10px 12px 10px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .card {
+      background: var(--panel);
+      border-radius: 14px;
+      padding: 10px;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.08);
+      border: 1px solid var(--border);
+      display: grid;
+      gap: 8px;
+    }
+
+    .card.repossessed {
+      border: 2px solid var(--repo-text);
+      box-shadow: 0 0 0 3px rgba(157, 23, 77, 0.08);
+    }
+
+    .card-top {
+      display: grid;
+      gap: 6px;
+    }
+
+    .card-title {
+      display: grid;
+      gap: 6px;
+      min-height: 68px;
+      align-content: start;
+    }
+
+    .vehicle-title {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.25;
+      min-height: 40px;
+      display: flex;
+      align-items: flex-start;
+    }
+
+    .vehicle-subtitle {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1;
+      border: 1px solid transparent;
+    }
+
+    .badge.branding-green {
+      background: var(--green-bg);
+      color: var(--green-text);
+    }
+
+    .badge.branding-yellow {
+      background: var(--yellow-bg);
+      color: var(--yellow-text);
+    }
+
+    .badge.branding-red {
+      background: var(--red-bg);
+      color: var(--red-text);
+    }
+
+    .badge.branding-default {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .badge.status-blue {
+      background: var(--blue-bg);
+      color: var(--blue-text);
+    }
+
+    .badge.status-yellow {
+      background: var(--yellow-bg);
+      color: var(--yellow-text);
+    }
+
+    .badge.status-orange {
+      background: var(--orange-bg);
+      color: var(--orange-text);
+    }
+
+    .badge.status-default {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .badge.repo {
+      background: var(--repo-bg);
+      color: var(--repo-text);
+    }
+
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .links a {
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .top-meta-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .mini-field {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 7px 8px;
+      min-width: 0;
+    }
+
+    .mini-label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .mini-value {
+      font-size: 12px;
+      line-height: 1.2;
+      word-break: break-word;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+
+    .field {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 8px 10px;
+      font-size: 13px;
+      line-height: 1.3;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 24px 12px;
+      background: var(--panel);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    @media (max-width: 520px) {
+      .top-meta-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 800px) {
+      .controls-row {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .controls-row.second {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+      }
+
+      .controls-row.third {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      main {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 1200px) {
+      main {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+  </style>
 </head>
 <body>
+  <header>
+    <h1>Daily Listings</h1>
+    <div class="meta">Reload this page to see the latest committed data.</div>
+  </header>
 
-<select id="hideGasFilter">
-  <option value="yes" selected>Hide gas</option>
-  <option value="no">Show all</option>
-</select>
+  <section class="toolbar">
+    <div class="controls">
+      <div class="controls-row">
+        <div class="control">
+          <label for="searchBox">Search</label>
+          <input id="searchBox" type="text" placeholder="Title, VIN, stock, city, location...">
+        </div>
 
-<div id="results"></div>
+        <div class="control">
+          <label for="sortBy">Sort by</label>
+          <select id="sortBy">
+            <option value="title-asc">Vehicle A–Z</option>
+            <option value="title-desc">Vehicle Z–A</option>
+            <option value="location-asc">Location A–Z</option>
+            <option value="branding-asc">Branding A–Z</option>
+            <option value="status-asc">Status A–Z</option>
+            <option value="make-asc">Make A–Z</option>
+            <option value="model-asc">Model A–Z</option>
+            <option value="damage-desc">Damage estimate high to low</option>
+            <option value="damage-asc">Damage estimate low to high</option>
+            <option value="bid-desc">Pre-bid high to low</option>
+            <option value="bid-asc">Pre-bid low to high</option>
+            <option value="km-asc">KM low to high</option>
+            <option value="km-desc">KM high to low</option>
+          </select>
+        </div>
 
-<script>
-${dataScript}
-</script>
+        <div class="control">
+          <label for="vehicleFilter">Vehicle</label>
+          <select id="vehicleFilter">
+            <option value="">All</option>
+          </select>
+        </div>
+      </div>
 
-<script src="page_logic.js"></script>
+      <div class="controls-row second">
+        <div class="control">
+          <label for="locationFilter">Location</label>
+          <select id="locationFilter">
+            <option value="">All</option>
+          </select>
+        </div>
 
+        <div class="control">
+          <label for="statusFilter">Status</label>
+          <select id="statusFilter">
+            <option value="">All</option>
+          </select>
+        </div>
+
+        <div class="control">
+          <label for="brandingFilter">Branding</label>
+          <select id="brandingFilter">
+            <option value="">All</option>
+          </select>
+        </div>
+
+        <div class="control">
+          <label for="repoFilter">Repossessed</label>
+          <select id="repoFilter">
+            <option value="">All</option>
+            <option value="yes">Repossessed only</option>
+            <option value="no">Exclude repossessed</option>
+          </select>
+        </div>
+
+        <div class="control">
+          <label for="hideGasFilter">Fuel type</label>
+          <select id="hideGasFilter">
+            <option value="yes" selected>Hide likely gas vehicles</option>
+            <option value="no">Show all vehicles</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="controls-row third">
+        <div class="control">
+          <label for="makeFilter">Make</label>
+          <select id="makeFilter">
+            <option value="">All</option>
+          </select>
+        </div>
+
+        <div class="control">
+          <label for="modelFilter">Model</label>
+          <select id="modelFilter">
+            <option value="">All</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="summary">
+      <div><strong id="countValue">0</strong> items shown</div>
+      <div id="summaryText">Ready</div>
+    </div>
+  </section>
+
+  <main id="results"></main>
+
+  <script>
+    const items = ${itemsJson};
+  </script>
+  <script src="page_logic.js"></script>
 </body>
-</html>
-`;
+</html>`;
 };
