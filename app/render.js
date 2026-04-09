@@ -1,18 +1,22 @@
 const fs = require('fs');
 const path = require('path');
-const template = require('./page_template');
+const pageTemplate = require('./page_template');
 
-const data = fs.readFileSync('./app/data.json', 'utf8');
+const inputPath = path.join(__dirname, 'data.json');
+const logicPath = path.join(__dirname, 'page_logic.js');
+const outputDir = path.join(__dirname, '..', 'docs');
+const outputHtmlPath = path.join(outputDir, 'index.html');
+const outputLogicPath = path.join(outputDir, 'page_logic.js');
 
-const dataScript = `
-const items = ${data};
-initPage(items);
-`;
+const raw = fs.readFileSync(inputPath, 'utf8');
+const items = JSON.parse(raw);
+const itemsJson = JSON.stringify(items);
 
-const html = template(dataScript);
+const html = pageTemplate(itemsJson);
 
-fs.mkdirSync('./docs', { recursive: true });
-fs.writeFileSync('./docs/index.html', html);
-fs.copyFileSync('./app/page_logic.js', './docs/page_logic.js');
+fs.mkdirSync(outputDir, { recursive: true });
+fs.writeFileSync(outputHtmlPath, html, 'utf8');
+fs.copyFileSync(logicPath, outputLogicPath);
 
-console.log("Page built");
+console.log(`Wrote ${outputHtmlPath}`);
+console.log(`Copied ${outputLogicPath}`);
