@@ -45,6 +45,6 @@ jobs:
         run: |
           git config user.name "bot"
           git config user.email "bot@example.com"
-          git add app/data.json docs/index.html
+          git add app/data.json docs
           git commit -m "update data" || echo "no changes"
           git push
