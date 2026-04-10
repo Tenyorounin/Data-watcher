@@ -107,15 +107,20 @@ function initPage(items) {
     const engine = safe(item.engine).toLowerCase();
     const raw = safe(item.raw_text).toLowerCase();
 
+    // Strong keep rules:
+    // If either structured engine text OR raw text shows electric,
+    // treat it as EV and do NOT hide it.
+    if (engine.includes('electric')) {
+      return false;
+    }
+
     if (
-      engine.includes('electric') ||
-      raw.includes('engine: electric') ||
-      raw.includes('fuel: electric') ||
-      raw.includes('fuel type: electric')
+      raw.includes('electric')
     ) {
       return false;
     }
 
+    // Everything else is treated as non-EV.
     return true;
   }
 
