@@ -69,36 +69,19 @@ function initPage(items) {
   }
 
   function brandingClass(value) {
-  const v = lower(value);
-
-  // Normalize by removing spaces and hyphens
-  const normalized = v.replace(/[\s-]/g, '');
-
-  // NOT BRANDED (all variants)
-  if (normalized.includes('notbranded')) {
-    return 'branding-green';
+    const v = lower(value);
+    if (!v) return 'branding-default';
+    if (v.includes('not branded') || v.includes('clean')) return 'branding-green';
+    if (v.includes('salvage') || v.includes('v.g.a') || v === 'vga') return 'branding-yellow';
+    if (
+      v.includes('irreparable') ||
+      v.includes('irrecuperable') ||
+      v.includes('irrécupérable') ||
+      v.includes('non-repairable') ||
+      v.includes('non repairable')
+    ) return 'branding-red';
+    return 'branding-default';
   }
-
-  // SALVAGE / VGA
-  if (
-    normalized.includes('salvage') ||
-    normalized.includes('vga') ||
-    normalized.includes('repairable')
-  ) {
-    return 'branding-yellow';
-  }
-
-  // IRREPARABLE / NON-REPAIRABLE (all variants + french)
-  if (
-    normalized.includes('irreparable') ||
-    normalized.includes('irrecuperable') ||
-    normalized.includes('nonrepairable')
-  ) {
-    return 'branding-red';
-  }
-
-  return 'branding-default';
-}
 
   function statusClass(value) {
     const v = lower(value);
@@ -174,16 +157,14 @@ function initPage(items) {
         '<div class="card-top">' +
           '<div class="card-title">' +
             '<div class="vehicle-subtitle">' + (safe(subtitle) || '&nbsp;') + '</div>' +
-      
-        (
-          item.detail_page
-            ? '<h2 class="vehicle-title"><a href="' + safe(item.detail_page) + '" target="_blank" rel="noopener noreferrer">' + (safe(item.title) || 'Untitled') + '</a></h2>'
-            : '<h2 class="vehicle-title">' + (safe(item.title) || 'Untitled') + '</h2>'
-        ) +
-      
+            '<h2 class="vehicle-title">' + (safe(item.title) || 'Untitled') + '</h2>' +
             '<div class="badges">' + badges + '</div>' +
-          '</div>' +      
-          '<div class="top-meta-row">' + topMeta + '</div>' +      
+          '</div>' +
+          '<div class="top-meta-row">' + topMeta + '</div>' +
+          '<div class="links">' +
+            (item.detail_page ? '<a href="' + safe(item.detail_page) + '" target="_blank" rel="noopener noreferrer">Detail</a>' : '') +
+            (item.image_page ? '<a href="' + safe(item.image_page) + '" target="_blank" rel="noopener noreferrer">Images</a>' : '') +
+          '</div>' +
         '</div>' +
         '<div class="grid">' +
           field('Sale date', item.sale_datetime) +
@@ -350,7 +331,7 @@ function initPage(items) {
   [
     'searchBox',
     'sortBy',
-    // 'vehicleFilter',
+    'vehicleFilter',
     'locationFilter',
     'statusFilter',
     'brandingFilter',
