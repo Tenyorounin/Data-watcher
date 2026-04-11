@@ -174,14 +174,16 @@ function initPage(items) {
         '<div class="card-top">' +
           '<div class="card-title">' +
             '<div class="vehicle-subtitle">' + (safe(subtitle) || '&nbsp;') + '</div>' +
-            '<h2 class="vehicle-title">' + (safe(item.title) || 'Untitled') + '</h2>' +
+      
+        (
+          item.detail_page
+            ? '<h2 class="vehicle-title"><a href="' + safe(item.detail_page) + '" target="_blank" rel="noopener noreferrer">' + (safe(item.title) || 'Untitled') + '</a></h2>'
+            : '<h2 class="vehicle-title">' + (safe(item.title) || 'Untitled') + '</h2>'
+        ) +
+      
             '<div class="badges">' + badges + '</div>' +
-          '</div>' +
-          '<div class="top-meta-row">' + topMeta + '</div>' +
-          '<div class="links">' +
-            (item.detail_page ? '<a href="' + safe(item.detail_page) + '" target="_blank" rel="noopener noreferrer">Detail</a>' : '') +
-            (item.image_page ? '<a href="' + safe(item.image_page) + '" target="_blank" rel="noopener noreferrer">Images</a>' : '') +
-          '</div>' +
+          '</div>' +      
+          '<div class="top-meta-row">' + topMeta + '</div>' +      
         '</div>' +
         '<div class="grid">' +
           field('Sale date', item.sale_datetime) +
@@ -348,7 +350,7 @@ function initPage(items) {
   [
     'searchBox',
     'sortBy',
-    'vehicleFilter',
+    // 'vehicleFilter',
     'locationFilter',
     'statusFilter',
     'brandingFilter',
