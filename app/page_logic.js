@@ -152,34 +152,7 @@ function initPage(items) {
       miniField('VIN', item.vin)
     ].filter(Boolean).join('');
 
-    return (
-      '<article class="card ' + (repo ? 'repossessed' : '') + '">' +
-        '<div class="card-top">' +
-          '<div class="card-title">' +
-            '<div class="vehicle-subtitle">' + (safe(subtitle) || '&nbsp;') + '</div>' +
-            '<h2 class="vehicle-title">' + (safe(item.title) || 'Untitled') + '</h2>' +
-            '<div class="badges">' + badges + '</div>' +
-          '</div>' +
-          '<div class="top-meta-row">' + topMeta + '</div>' +
-          '<div class="links">' +
-            (item.detail_page ? '<a href="' + safe(item.detail_page) + '" target="_blank" rel="noopener noreferrer">Detail</a>' : '') +
-            (item.image_page ? '<a href="' + safe(item.image_page) + '" target="_blank" rel="noopener noreferrer">Images</a>' : '') +
-          '</div>' +
-        '</div>' +
-        '<div class="grid">' +
-          field('Sale date', item.sale_datetime) +
-          field('Closing date', item.closing_date) +
-          field('City', item.city) +
-          field('Location', item.location_name) +
-          field('KM', item.odometer_km) +
-          field('Damage estimate', item.damage_estimate ? '$' + item.damage_estimate : '') +
-          field('High pre-bid', item.high_pre_bid ? '$' + item.high_pre_bid : '') +
-          field('Buy now', item.buy_now ? '$' + item.buy_now : '') +
-          field('Search term', item.search_term) +
-        '</div>' +
-      '</article>'
-    );
-  }
+return ( '<article class="card ' + (repo ? 'repossessed' : '') + '">' + '<div class="card-top">' + '<div class="card-title">' + '<div class="vehicle-subtitle">' + (safe(subtitle) || '&nbsp;') + '</div>' + ( item.detail_page ? '<h2 class="vehicle-title"><a href="' + safe(item.detail_page) + '" target="_blank" rel="noopener noreferrer">' + (safe(item.title) || 'Untitled') + '</a></h2>' : '<h2 class="vehicle-title">' + (safe(item.title) || 'Untitled') + '</h2>' ) + '<div class="badges">' + badges + '</div>' + '</div>' + '<div class="top-meta-row">' + topMeta + '</div>' + '</div>' + '<div class="grid">' + field('Sale date', item.sale_datetime) + field('Closing date', item.closing_date) + field('City', item.city) + field('Location', item.location_name) + field('KM', item.odometer_km) + field('Damage estimate', item.damage_estimate ? '$' + item.damage_estimate : '') + field('High pre-bid', item.high_pre_bid ? '$' + item.high_pre_bid : '') + field('Buy now', item.buy_now ? '$' + item.buy_now : '') + field('Search term', item.search_term) + '</div>' + '</article>' ); }
 
   function uniqueSorted(values) {
     return [...new Set(values.map(safe).filter(Boolean))].sort((a, b) => a.localeCompare(b));
@@ -308,7 +281,7 @@ function initPage(items) {
     countValue.textContent = String(filtered.length);
 
     summaryText.textContent = [
-      vehicleFilter ? 'Vehicle: ' + vehicleFilter : '',
+      //vehicleFilter ? 'Vehicle: ' + vehicleFilter : '',
       makeFilter ? 'Make: ' + makeFilter : '',
       modelFilter ? 'Model: ' + modelFilter : '',
       locationFilter ? 'Location: ' + locationFilter : '',
@@ -331,7 +304,7 @@ function initPage(items) {
   [
     'searchBox',
     'sortBy',
-    'vehicleFilter',
+    //'vehicleFilter',
     'locationFilter',
     'statusFilter',
     'brandingFilter',
