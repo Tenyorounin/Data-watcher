@@ -141,7 +141,8 @@ function initPage(items) {
   if (
     normalized.includes('gas') ||
     normalized.includes('diesel') ||
-    normalized.includes('cylinder')
+    normalized.includes('cylinders') ||
+    normalized.includes('unleaded')
   ) {
     return true;
   }
