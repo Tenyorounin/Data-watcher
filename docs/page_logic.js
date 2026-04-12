@@ -69,19 +69,39 @@ function initPage(items) {
   }
 
   function brandingClass(value) {
-    const v = lower(value);
-    if (!v) return 'branding-default';
-    if (v.includes('not branded') || v.includes('clean')) return 'branding-green';
-    if (v.includes('salvage') || v.includes('v.g.a') || v === 'vga') return 'branding-yellow';
-    if (
-      v.includes('irreparable') ||
-      v.includes('irrecuperable') ||
-      v.includes('irrécupérable') ||
-      v.includes('non-repairable') ||
-      v.includes('non repairable')
-    ) return 'branding-red';
-    return 'branding-default';
+  const v = lower(value);
+
+  // Normalize by removing spaces and hyphens
+  const normalized = v.replace(/[\s-]/g, '');
+
+  // NOT BRANDED (all variants)
+  if (normalized.includes('notbranded') ||
+  normalized.includes('cleantitle') ||
+  normalized.endsWith('clean') ||
+  normalized.endsWith('clear')
+     ) {
+    return 'branding-green';
   }
+
+  // SALVAGE / VGA
+  if (
+    normalized.includes('salvage') ||
+    normalized.includes('vga')
+  ) {
+    return 'branding-yellow';
+  }
+
+  // IRREPARABLE / NON-REPAIRABLE (all variants + french)
+  if (
+    normalized.includes('irreparable') ||
+    normalized.includes('irrecuperable') ||
+    normalized.includes('nonrepairable')
+  ) {
+    return 'branding-red';
+  }
+
+  return 'branding-default';
+}
 
   function statusClass(value) {
     const v = lower(value);
@@ -104,25 +124,23 @@ function initPage(items) {
   }
 
   function isLikelyGasVehicle(item) {
-    const engine = safe(item.engine).toLowerCase();
-    const raw = safe(item.raw_text).toLowerCase();
+  const engine = safe(item.engine).toLowerCase();
+  const raw = safe(item.raw_text).toLowerCase();
 
-    // Strong keep rules:
-    // If either structured engine text OR raw text shows electric,
-    // treat it as EV and do NOT hide it.
-    if (engine.includes('electric')) {
-      return false;
-    }
+  // Normalize: remove spaces, hyphens, punctuation
+  const normEngine = engine.replace(/[\s\-_:]/g, '');
+  const normRaw = raw.replace(/[\s\-_:]/g, '');
 
-    if (
-      raw.includes('electric')
-    ) {
-      return false;
-    }
+  return (
+    normEngine.includes('gas') ||
+    normEngine.includes('diesel') ||
+    normEngine.includes('cylinder') ||
 
-    // Everything else is treated as non-EV.
-    return true;
-  }
+    normRaw.includes('gas') ||
+    normRaw.includes('diesel') ||
+    normRaw.includes('cylinder')
+  );
+}
 
   function field(label, value) {
     if (!safe(value)) return '';
