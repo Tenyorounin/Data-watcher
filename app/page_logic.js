@@ -281,7 +281,7 @@ return ( '<article class="card ' + (repo ? 'repossessed' : '') + '">' + '<div cl
     countValue.textContent = String(filtered.length);
 
     summaryText.textContent = [
-      //vehicleFilter ? 'Vehicle: ' + vehicleFilter : '',
+      vehicleFilter ? 'Vehicle: ' + vehicleFilter : '',
       makeFilter ? 'Make: ' + makeFilter : '',
       modelFilter ? 'Model: ' + modelFilter : '',
       locationFilter ? 'Location: ' + locationFilter : '',
@@ -304,7 +304,7 @@ return ( '<article class="card ' + (repo ? 'repossessed' : '') + '">' + '<div cl
   [
     'searchBox',
     'sortBy',
-    //'vehicleFilter',
+    'vehicleFilter',
     'locationFilter',
     'statusFilter',
     'brandingFilter',
