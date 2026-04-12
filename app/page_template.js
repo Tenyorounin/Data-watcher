@@ -380,12 +380,13 @@ module.exports = function pageTemplate() {
           </select>
         </div>
 
-        <div class="control">
-          <label for="vehicleFilter">Vehicle</label>
-          <select id="vehicleFilter">
-            <option value="">All</option>
-          </select>
-        </div>
+        <div class="control" style="display: none;">
+  <label for="vehicleFilter">Vehicle</label>
+  <select id="vehicleFilter">
+    <option value="">All</option>
+  </select>
+</div
+
       </div>
 
       <div class="controls-row second">
