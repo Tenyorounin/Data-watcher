@@ -124,32 +124,24 @@ function initPage(items) {
   }
 
   function isLikelyGasVehicle(item) {
-  // Combine ALL fields into one string
   const combined = Object.values(item)
     .map(v => safe(v).toLowerCase())
     .join(' ');
 
-  // Normalize (remove spaces, hyphens, punctuation)
-  const normalized = combined.replace(/[\s\-_:./]/g, '');
+  const normalized = combined.replace(/[\s\-_:./(),]/g, '');
 
-  // If clearly electric → KEEP
-  if (normalized.includes('electric')) {
-    return false;
-  }
+  const gasWords = [
+    'cylinders',
+    'gas',
+    'gasoline',
+    'diesel',
+    'unleaded',
+    'premium',
+    'regular'
+  ];
 
-  // If clearly gas/diesel → HIDE
-  if (
-    normalized.includes('gas') ||
-    normalized.includes('diesel') ||
-    normalized.includes('cylinders') ||
-    normalized.includes('unleaded')
-  ) {
-    return true;
-  }
-
-  // Otherwise → KEEP
-  return false;
-  }
+  return gasWords.some(word => normalized.includes(word));
+}
 
   function field(label, value) {
     if (!safe(value)) return '';
