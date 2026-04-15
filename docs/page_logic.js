@@ -7,6 +7,10 @@ function initPage(items) {
     return safe(value).toLowerCase();
   }
 
+  function normalizeForMatch(value) {
+    return lower(value).replace(/[\s\-_:./(),]/g, '');
+  }
+
   function moneyNumber(value) {
     if (!value) return null;
     const n = Number(String(value).replace(/,/g, ''));
@@ -69,39 +73,34 @@ function initPage(items) {
   }
 
   function brandingClass(value) {
-  const v = lower(value);
+    const normalized = normalizeForMatch(value);
 
-  // Normalize by removing spaces and hyphens
-  const normalized = v.replace(/[\s-]/g, '');
+    if (
+      normalized.includes('notbranded') ||
+      normalized.includes('cleantitle') ||
+      normalized.endsWith('clean') ||
+      normalized.endsWith('clear')
+    ) {
+      return 'branding-green';
+    }
 
-  // NOT BRANDED (all variants)
-  if (normalized.includes('notbranded') ||
-  normalized.includes('cleantitle') ||
-  normalized.endsWith('clean') ||
-  normalized.endsWith('clear')
-     ) {
-    return 'branding-green';
+    if (
+      normalized.includes('salvage') ||
+      normalized.includes('vga')
+    ) {
+      return 'branding-yellow';
+    }
+
+    if (
+      normalized.includes('irreparable') ||
+      normalized.includes('irrecuperable') ||
+      normalized.includes('nonrepairable')
+    ) {
+      return 'branding-red';
+    }
+
+    return 'branding-default';
   }
-
-  // SALVAGE / VGA
-  if (
-    normalized.includes('salvage') ||
-    normalized.includes('vga')
-  ) {
-    return 'branding-yellow';
-  }
-
-  // IRREPARABLE / NON-REPAIRABLE (all variants + french)
-  if (
-    normalized.includes('irreparable') ||
-    normalized.includes('irrecuperable') ||
-    normalized.includes('nonrepairable')
-  ) {
-    return 'branding-red';
-  }
-
-  return 'branding-default';
-}
 
   function statusClass(value) {
     const v = lower(value);
@@ -124,24 +123,31 @@ function initPage(items) {
   }
 
   function isLikelyGasVehicle(item) {
-  const combined = Object.values(item)
-    .map(v => safe(v).toLowerCase())
-    .join(' ');
+    const combined = [
+      item.title,
+      item.raw_text,
+      item.engine,
+      item.branding,
+      item.city,
+      item.location,
+      item.location_name
+    ].map(safe).join(' ');
 
-  const normalized = combined.replace(/[\s\-_:./(),]/g, '');
+    const normalized = normalizeForMatch(combined);
 
-  const gasWords = [
-    'cylinders',
-    'gas',
-    'gasoline',
-    'diesel',
-    'unleaded',
-    'premium',
-    'regular'
-  ];
+    const gasWords = [
+      'cylinder',
+      'cylinders',
+      'gas',
+      'gasoline',
+      'diesel',
+      'unleaded',
+      'premium',
+      'regular'
+    ];
 
-  return gasWords.some(word => normalized.includes(word));
-}
+    return gasWords.some(word => normalized.includes(word));
+  }
 
   function field(label, value) {
     if (!safe(value)) return '';
@@ -171,7 +177,34 @@ function initPage(items) {
       miniField('VIN', item.vin)
     ].filter(Boolean).join('');
 
-return ( '<article class="card ' + (repo ? 'repossessed' : '') + '">' + '<div class="card-top">' + '<div class="card-title">' + '<div class="vehicle-subtitle">' + (safe(subtitle) || '&nbsp;') + '</div>' + ( item.detail_page ? '<h2 class="vehicle-title"><a href="' + safe(item.detail_page) + '" target="_blank" rel="noopener noreferrer">' + (safe(item.title) || 'Untitled') + '</a></h2>' : '<h2 class="vehicle-title">' + (safe(item.title) || 'Untitled') + '</h2>' ) + '<div class="badges">' + badges + '</div>' + '</div>' + '<div class="top-meta-row">' + topMeta + '</div>' + '</div>' + '<div class="grid">' + field('Sale date', item.sale_datetime) + field('Closing date', item.closing_date) + field('City', item.city) + field('Location', item.location_name) + field('KM', item.odometer_km) + field('Damage estimate', item.damage_estimate ? '$' + item.damage_estimate : '') + field('High pre-bid', item.high_pre_bid ? '$' + item.high_pre_bid : '') + field('Buy now', item.buy_now ? '$' + item.buy_now : '') + field('Search term', item.search_term) + '</div>' + '</article>' ); }
+    return (
+      '<article class="card ' + (repo ? 'repossessed' : '') + '">' +
+        '<div class="card-top">' +
+          '<div class="card-title">' +
+            '<div class="vehicle-subtitle">' + (safe(subtitle) || '&nbsp;') + '</div>' +
+            (
+              item.detail_page
+                ? '<h2 class="vehicle-title"><a href="' + safe(item.detail_page) + '" target="_blank" rel="noopener noreferrer">' + (safe(item.title) || 'Untitled') + '</a></h2>'
+                : '<h2 class="vehicle-title">' + (safe(item.title) || 'Untitled') + '</h2>'
+            ) +
+            '<div class="badges">' + badges + '</div>' +
+          '</div>' +
+          '<div class="top-meta-row">' + topMeta + '</div>' +
+        '</div>' +
+        '<div class="grid">' +
+          field('Sale date', item.sale_datetime) +
+          field('Closing date', item.closing_date) +
+          field('City', item.city) +
+          field('Location', item.location_name) +
+          field('KM', item.odometer_km) +
+          field('Damage estimate', item.damage_estimate ? '$' + item.damage_estimate : '') +
+          field('High pre-bid', item.high_pre_bid ? '$' + item.high_pre_bid : '') +
+          field('Buy now', item.buy_now ? '$' + item.buy_now : '') +
+          field('Search term', item.search_term) +
+        '</div>' +
+      '</article>'
+    );
+  }
 
   function uniqueSorted(values) {
     return [...new Set(values.map(safe).filter(Boolean))].sort((a, b) => a.localeCompare(b));
@@ -179,6 +212,8 @@ return ( '<article class="card ' + (repo ? 'repossessed' : '') + '">' + '<div cl
 
   function fillSelect(id, values) {
     const select = document.getElementById(id);
+    if (!select) return;
+
     const current = select.value;
     const options = ['<option value="">All</option>']
       .concat(values.map(v => '<option value="' + v.replace(/"/g, '&quot;') + '">' + v + '</option>'))
@@ -190,8 +225,11 @@ return ( '<article class="card ' + (repo ? 'repossessed' : '') + '">' + '<div cl
   }
 
   function refreshDependentFilters() {
-    const vehicleFilter = document.getElementById('vehicleFilter').value;
-    const makeFilter = document.getElementById('makeFilter').value;
+    const vehicleFilterEl = document.getElementById('vehicleFilter');
+    const makeFilterEl = document.getElementById('makeFilter');
+
+    const vehicleFilter = vehicleFilterEl ? vehicleFilterEl.value : '';
+    const makeFilter = makeFilterEl ? makeFilterEl.value : '';
 
     let modelSource = enrichedItems.slice();
 
@@ -216,7 +254,10 @@ return ( '<article class="card ' + (repo ? 'repossessed' : '') + '">' + '<div cl
   function applyFilters() {
     const search = lower(document.getElementById('searchBox').value);
     const sortBy = document.getElementById('sortBy').value;
-    const vehicleFilter = document.getElementById('vehicleFilter').value;
+
+    const vehicleFilterEl = document.getElementById('vehicleFilter');
+    const vehicleFilter = vehicleFilterEl ? vehicleFilterEl.value : '';
+
     const locationFilter = document.getElementById('locationFilter').value;
     const statusFilter = document.getElementById('statusFilter').value;
     const brandingFilter = document.getElementById('brandingFilter').value;
@@ -332,13 +373,17 @@ return ( '<article class="card ' + (repo ? 'repossessed' : '') + '">' + '<div cl
     'makeFilter',
     'modelFilter'
   ].forEach(id => {
-    document.getElementById(id).addEventListener('input', () => {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    el.addEventListener('input', () => {
       if (id === 'vehicleFilter' || id === 'makeFilter') {
         refreshDependentFilters();
       }
       applyFilters();
     });
-    document.getElementById(id).addEventListener('change', () => {
+
+    el.addEventListener('change', () => {
       if (id === 'vehicleFilter' || id === 'makeFilter') {
         refreshDependentFilters();
       }
