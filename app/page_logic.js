@@ -123,30 +123,24 @@ function initPage(items) {
   }
 
   function isLikelyGasVehicle(item) {
-    const combined = [
-      item.title,
-      item.raw_text,
-      item.engine,
-      item.branding,
-      item.city,
-      item.location,
-      item.location_name
-    ].map(safe).join(' ');
+  const text = JSON.stringify(item).toLowerCase();
 
-    const normalized = normalizeForMatch(combined);
+  // direct phrase checks on the real text
+  if (
+    /\bgas\b/.test(text) ||
+    /\bgasoline\b/.test(text) ||
+    /\bdiesel\b/.test(text) ||
+    /\bunleaded\b/.test(text) ||
+    /\bpremium\b/.test(text) ||
+    /\bregular\b/.test(text) ||
+    /\bcylinder\b/.test(text) ||
+    /\bcylinders\b/.test(text) ||
+    /\bcyl\b/.test(text)
+  ) {
+    return true;
+  }
 
-    const gasWords = [
-      'cylinder',
-      'cylinders',
-      'gas',
-      'gasoline',
-      'diesel',
-      'unleaded',
-      'premium',
-      'regular'
-    ];
-
-    return gasWords.some(word => normalized.includes(word));
+  return false;
   }
 
   function field(label, value) {
