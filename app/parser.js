@@ -116,6 +116,22 @@ function extractBrandingFromLocation(location) {
   return '';
 }
 
+function extractBrandingFromJoined(joined) {
+  return (
+    (joined.match(
+      /Vehicle Brand:\s*(.+?)(?=\s+Start Code:|\s+Lane:|\s+Run:|\s+Location:|\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|\s+Closing Date:|\s+High Pre-Bid:|\s+Current Bid:|\s+Buy Now:|\s+Prebid available|$)/i
+    ) || [])[1] || ''
+  );
+}
+
+function extractStartCodeFromJoined(joined) {
+  return (
+    (joined.match(
+      /Start Code:\s*(.+?)(?=\s+Vehicle Brand:|\s+Lane:|\s+Run:|\s+Location:|\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|\s+Closing Date:|\s+High Pre-Bid:|\s+Current Bid:|\s+Buy Now:|\s+Prebid available|$)/i
+    ) || [])[1] || ''
+  );
+}
+
 function extractLocationName(location, branding) {
   let locationName = normalizeLine(location);
   if (!locationName || !branding) return locationName;
@@ -153,23 +169,29 @@ function parseBlock(lines) {
     (joined.match(/Location:\s*(.+?)(?=\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|\s+Closing Date:|\s+High Pre-Bid:|\s+Current Bid:|\s+Buy Now:|\s+Prebid available|$)/i) || [])[1] || '';
 
   const engine =
-    (joined.match(/Engine:\s*(.+?)(?=\s+[A-Z][A-Za-zÀ-ÿ]+(?:\s*\([^)]+\))?(?:\s+[A-Z][A-Za-zÀ-ÿ]+(?:\s*\([^)]+\))?)*\s+(?:Lane:|Location:)|\s+Lane:|\s+Location:|\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|\s+Closing Date:|\s+Prebid available|$)/i) || [])[1] || '';
+    (joined.match(/Engine:\s*(.+?)(?=\s+[A-Z][A-Za-zÀ-ÿ]+(?:\s*\([^)]+\))?(?:\s+[A-Z][A-Za-zÀ-ÿ]+(?:\s*\([^)]+\))?)*\s+(?:Lane:|Location:|Vehicle Brand:|Start Code:)|\s+Lane:|\s+Location:|\s+Vehicle Brand:|\s+Start Code:|\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|\s+Closing Date:|\s+Prebid available|$)/i) || [])[1] || '';
 
   let city =
-    (joined.match(/Engine:\s*.+?\s+([A-Z][A-Za-zÀ-ÿ]+(?:\s*\([^)]+\))?(?:\s+[A-Z][A-Za-zÀ-ÿ]+(?:\s*\([^)]+\))?)*)(?=\s+(?:Lane:|Location:))/i) || [])[1] || '';
+    (joined.match(/Engine:\s*.+?\s+([A-Z][A-Za-zÀ-ÿ]+(?:\s*\([^)]+\))?(?:\s+[A-Z][A-Za-zÀ-ÿ]+(?:\s*\([^)]+\))?)*)(?=\s+(?:Lane:|Location:|Vehicle Brand:|Start Code:))/i) || [])[1] || '';
 
   if (!city) {
     city =
-      (joined.match(/Transmission:\s*Auto\s+(?:RunAndDrive|Run and Drive|Starts|Stationary)\s+Engine:\s*.+?\s+([A-Z][A-Za-zÀ-ÿ]+(?:\s*\([^)]+\))?(?:\s+[A-Z][A-Za-zÀ-ÿ]+(?:\s*\([^)]+\))?)*)(?=\s+Location:)/i) || [])[1] || '';
+      (joined.match(/Transmission:\s*Auto\s+(?:RunAndDrive|Run and Drive|Starts|Stationary)\s+Engine:\s*.+?\s+([A-Z][A-Za-zÀ-ÿ]+(?:\s*\([^)]+\))?(?:\s+[A-Z][A-Za-zÀ-ÿ]+(?:\s*\([^)]+\))?)*)(?=\s+(?:Location:|Vehicle Brand:|Start Code:))/i) || [])[1] || '';
   }
 
+  const startCodeRaw = extractStartCodeFromJoined(joined);
+
   const functionalStatusRaw =
+    startCodeRaw ||
     (joined.match(/Transmission:\s*Auto\s+(RunAndDrive|Run and Drive|Starts|Stationary)\b/i) || [])[1] || '';
 
   const functionalStatus = normalizeFunctionalStatus(functionalStatusRaw);
 
   const normalizedLocation = normalizeLine(location);
-  const branding = extractBrandingFromLocation(normalizedLocation);
+
+  const explicitBranding = normalizeLine(extractBrandingFromJoined(joined));
+  const branding = explicitBranding || extractBrandingFromLocation(normalizedLocation);
+
   const locationName = extractLocationName(normalizedLocation, branding);
 
   const parseIssue = !title;
@@ -238,6 +260,8 @@ module.exports = {
   looksLikeNoise,
   trimJoinedText,
   extractBrandingFromLocation,
+  extractBrandingFromJoined,
+  extractStartCodeFromJoined,
   extractLocationName,
   parseBlock,
   buildBlocksFromLines
