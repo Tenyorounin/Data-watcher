@@ -122,11 +122,28 @@ function initPage(items) {
     return combined.includes('repossessed') || combined.includes('repo');
   }
 
-  function isLikelyGasVehicle(item) {
-  const text = JSON.stringify(item).toLowerCase();
+  function collectText(value) {
+  if (value === null || value === undefined) return '';
 
-  // direct phrase checks on the real text
-  if (
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+    return String(value);
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(collectText).join(' ');
+  }
+
+  if (typeof value === 'object') {
+    return Object.values(value).map(collectText).join(' ');
+  }
+
+  return '';
+}
+
+function isLikelyGasVehicle(item) {
+  const text = collectText(item).toLowerCase();
+
+  return (
     /\bgas\b/.test(text) ||
     /\bgasoline\b/.test(text) ||
     /\bdiesel\b/.test(text) ||
@@ -136,12 +153,8 @@ function initPage(items) {
     /\bcylinder\b/.test(text) ||
     /\bcylinders\b/.test(text) ||
     /\bcyl\b/.test(text)
-  ) {
-    return true;
-  }
-
-  return false;
-  }
+  );
+}
 
   function field(label, value) {
     if (!safe(value)) return '';
