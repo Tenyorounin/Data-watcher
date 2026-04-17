@@ -119,7 +119,7 @@ function extractBrandingFromLocation(location) {
 function extractBrandingFromJoined(joined) {
   return (
     (joined.match(
-      /Vehicle Brand:\s*(.+?)(?=\s+Start Code:|\s+Lane:|\s+Run:|\s+Location:|\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|\s+Closing Date:|\s+High Pre-Bid:|\s+Current Bid:|\s+Buy Now:|\s+Prebid available|$)/i
+      /Vehicle Brand:\s*(.+?)(?=\s+Start Code:|\s+Fuel Type:|\s+Cylinders:|\s+Lane:|\s+Run:|\s+Location:|\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|\s+Closing Date:|\s+High Pre-Bid:|\s+Current Bid:|\s+Buy Now:|\s+Prebid available|$)/i
     ) || [])[1] || ''
   );
 }
@@ -127,7 +127,7 @@ function extractBrandingFromJoined(joined) {
 function extractStartCodeFromJoined(joined) {
   return (
     (joined.match(
-      /Start Code:\s*(.+?)(?=\s+Vehicle Brand:|\s+Lane:|\s+Run:|\s+Location:|\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|\s+Closing Date:|\s+High Pre-Bid:|\s+Current Bid:|\s+Buy Now:|\s+Prebid available|$)/i
+      /Start Code:\s*(.+?)(?=\s+Vehicle Brand:|\s+Fuel Type:|\s+Cylinders:|\s+Lane:|\s+Run:|\s+Location:|\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|\s+Closing Date:|\s+High Pre-Bid:|\s+Current Bid:|\s+Buy Now:|\s+Prebid available|$)/i
     ) || [])[1] || ''
   );
 }
@@ -169,14 +169,20 @@ function parseBlock(lines) {
     (joined.match(/Location:\s*(.+?)(?=\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|\s+Closing Date:|\s+High Pre-Bid:|\s+Current Bid:|\s+Buy Now:|\s+Prebid available|$)/i) || [])[1] || '';
 
   const engine =
-    (joined.match(/Engine:\s*(.+?)(?=\s+[A-Z][A-Za-zÀ-ÿ]+(?:\s*\([^)]+\))?(?:\s+[A-Z][A-Za-zÀ-ÿ]+(?:\s*\([^)]+\))?)*\s+(?:Lane:|Location:|Vehicle Brand:|Start Code:)|\s+Lane:|\s+Location:|\s+Vehicle Brand:|\s+Start Code:|\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|\s+Closing Date:|\s+Prebid available|$)/i) || [])[1] || '';
+    (joined.match(/Engine:\s*(.+?)(?=\s+Fuel Type:|\s+Cylinders:|\s+Vehicle Brand:|\s+Start Code:|\s+Lane:|\s+Location:|\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|\s+Closing Date:|\s+Prebid available|$)/i) || [])[1] || '';
+
+  const fuelType =
+    (joined.match(/Fuel Type:\s*(.+?)(?=\s+Engine:|\s+Cylinders:|\s+Vehicle Brand:|\s+Start Code:|\s+Lane:|\s+Location:|\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|\s+Closing Date:|\s+Prebid available|$)/i) || [])[1] || '';
+
+  const cylinders =
+    (joined.match(/Cylinders:\s*(.+?)(?=\s+Fuel Type:|\s+Engine:|\s+Vehicle Brand:|\s+Start Code:|\s+Lane:|\s+Location:|\s+(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),|\s+Closing Date:|\s+Prebid available|$)/i) || [])[1] || '';
 
   let city =
-    (joined.match(/Engine:\s*.+?\s+([A-Z][A-Za-zÀ-ÿ]+(?:\s*\([^)]+\))?(?:\s+[A-Z][A-Za-zÀ-ÿ]+(?:\s*\([^)]+\))?)*)(?=\s+(?:Lane:|Location:|Vehicle Brand:|Start Code:))/i) || [])[1] || '';
+    (joined.match(/Engine:\s*.+?\s+([A-Z][A-Za-zÀ-ÿ]+(?:\s*\([^)]+\))?(?:\s+[A-Z][A-Za-zÀ-ÿ]+(?:\s*\([^)]+\))?)*)(?=\s+(?:Lane:|Location:|Vehicle Brand:|Start Code:|Fuel Type:|Cylinders:))/i) || [])[1] || '';
 
   if (!city) {
     city =
-      (joined.match(/Transmission:\s*Auto\s+(?:RunAndDrive|Run and Drive|Starts|Stationary)\s+Engine:\s*.+?\s+([A-Z][A-Za-zÀ-ÿ]+(?:\s*\([^)]+\))?(?:\s+[A-Z][A-Za-zÀ-ÿ]+(?:\s*\([^)]+\))?)*)(?=\s+(?:Location:|Vehicle Brand:|Start Code:))/i) || [])[1] || '';
+      (joined.match(/Transmission:\s*Auto\s+(?:RunAndDrive|Run and Drive|Starts|Stationary)\s+Engine:\s*.+?\s+([A-Z][A-Za-zÀ-ÿ]+(?:\s*\([^)]+\))?(?:\s+[A-Z][A-Za-zÀ-ÿ]+(?:\s*\([^)]+\))?)*)(?=\s+(?:Location:|Vehicle Brand:|Start Code:|Fuel Type:|Cylinders:))/i) || [])[1] || '';
   }
 
   const startCodeRaw = extractStartCodeFromJoined(joined);
@@ -212,6 +218,8 @@ function parseBlock(lines) {
     high_pre_bid: normalizeLine(highPreBid),
     buy_now: normalizeLine(buyNow),
     engine: normalizeLine(engine),
+    fuel_type: normalizeLine(fuelType),
+    cylinders: normalizeLine(cylinders),
     functional_status: functionalStatus,
     odometer_km: odometer ? odometer.replace(/,/g, '') : '',
     damage_estimate: normalizeLine(damageEstimate),
