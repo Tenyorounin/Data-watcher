@@ -141,19 +141,8 @@ function initPage(items) {
 }
 
 function isLikelyGasVehicle(item) {
-  const text = collectText(item).toLowerCase();
-
-  return (
-    /\bgas\b/.test(text) ||
-    /\bgasoline\b/.test(text) ||
-    /\bdiesel\b/.test(text) ||
-    /\bunleaded\b/.test(text) ||
-    /\bpremium\b/.test(text) ||
-    /\bregular\b/.test(text) ||
-    /\bcylinder\b/.test(text) ||
-    /\bcylinders\b/.test(text) ||
-    /\bcyl\b/.test(text)
-  );
+  const engine = lower(item.engine);
+  return !engine.includes('electric');
 }
 
   function field(label, value) {
