@@ -141,8 +141,25 @@ function initPage(items) {
 }
 
 function isLikelyGasVehicle(item) {
-  const engine = lower(item.engine);
-  return !engine.includes('electric');
+  const engine = lower(item.engine).replace(/-/g, '');
+
+  const gasTerms = [
+    'v6',
+    'v8',
+    'dohc',
+    'h6',
+    'i6',
+    'i4',
+    'w12',
+    'v12',
+    'gas',
+    'diesel',
+    'cyl',
+    'hybrid',
+    'fuel'
+  ];
+
+  return gasTerms.some(term => engine.includes(term));
 }
 
   function field(label, value) {
