@@ -103,7 +103,8 @@ function extractBrandingFromLocation(location) {
     'NON-REPAIRABLE',
     'NON REPAIRABLE',
     'CLEAN TITLE',
-    'V.G.A'
+    'V.G.A',
+    'NORMAL'
   ];
 
   for (const candidate of knownBrandings) {
