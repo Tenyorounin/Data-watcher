@@ -141,19 +141,25 @@ function initPage(items) {
 }
 
 function isLikelyGasVehicle(item) {
-  const text = collectText(item).toLowerCase();
+  const engine = lower(item.engine).replace(/-/g, '');
 
-  return (
-    /\bgas\b/.test(text) ||
-    /\bgasoline\b/.test(text) ||
-    /\bdiesel\b/.test(text) ||
-    /\bunleaded\b/.test(text) ||
-    /\bpremium\b/.test(text) ||
-    /\bregular\b/.test(text) ||
-    /\bcylinder\b/.test(text) ||
-    /\bcylinders\b/.test(text) ||
-    /\bcyl\b/.test(text)
-  );
+  const gasTerms = [
+    'v6',
+    'v8',
+    'dohc',
+    'h6',
+    'i6',
+    'i4',
+    'w12',
+    'v12',
+    'gas',
+    'diesel',
+    'cyl',
+    'hybrid',
+    'fuel'
+  ];
+
+  return gasTerms.some(term => engine.includes(term));
 }
 
   function field(label, value) {
