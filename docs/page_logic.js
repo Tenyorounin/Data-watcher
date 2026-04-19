@@ -289,7 +289,8 @@ function isLikelyGasVehicle(item) {
       if (brandingFilter && safe(item.branding) !== brandingFilter) return false;
       if (repoFilter === 'yes' && !repo) return false;
       if (repoFilter === 'no' && repo) return false;
-      if (hideGasFilter === 'yes' && isLikelyGasVehicle(item)) return false;
+      if (hideGasFilter === 'hide' && isLikelyGasVehicle(item)) return false;
+if (hideGasFilter === 'only' && !isLikelyGasVehicle(item)) return false;
       if (makeFilter && parts.make !== makeFilter) return false;
       if (modelFilter && parts.model !== modelFilter) return false;
 
@@ -362,7 +363,9 @@ function isLikelyGasVehicle(item) {
       brandingFilter ? 'Branding: ' + brandingFilter : '',
       repoFilter === 'yes' ? 'Repossessed only' : '',
       repoFilter === 'no' ? 'Repossessed excluded' : '',
-      hideGasFilter === 'yes' ? 'Gas hidden' : 'Gas shown',
+      hideGasFilter === 'hide' ? 'Gas hidden' :
+hideGasFilter === 'only' ? 'Gas only' :
+'All vehicles',
       search ? 'Search active' : ''
     ].filter(Boolean).join(' • ') || 'Showing all items';
 
