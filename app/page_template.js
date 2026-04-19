@@ -423,9 +423,10 @@ module.exports = function pageTemplate() {
         <div class="control">
           <label for="hideGasFilter">Fuel type</label>
           <select id="hideGasFilter">
-            <option value="yes" selected>Hide likely gas vehicles</option>
-            <option value="no">Show all vehicles</option>
-          </select>
+  <option value="hide" selected>Hide gas vehicles</option>
+  <option value="all">Show all vehicles</option>
+  <option value="only">Show only gas vehicles</option>
+</select>
         </div>
       </div>
 
