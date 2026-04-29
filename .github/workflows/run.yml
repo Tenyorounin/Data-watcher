@@ -2,7 +2,7 @@ name: scheduled-job
 
 on:
   schedule:
-    - cron: '0 16 * * 1,2,3,4,5,6'
+    - cron: '0 16,14,19 * * 1,2,3,4,5,6'
   workflow_dispatch:
 
 permissions:
