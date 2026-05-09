@@ -267,7 +267,7 @@
     "location": "IAA Ottawa Thunder Road ON-SALVAGE",
     "location_name": "IAA Ottawa Thunder Road ON",
     "branding": "SALVAGE",
-    "high_pre_bid": "",
+    "high_pre_bid": "10,300.00",
     "buy_now": "",
     "engine": "Electric Ottawa",
     "fuel_type": "",
@@ -277,7 +277,7 @@
     "damage_estimate": "46,988.64",
     "parse_issue": false,
     "parse_issue_reason": "",
-    "raw_text": "2024 KIA EV6 GT LINE VIN #: KNDC4DLCXR5****** Stock #: 12598362 Front, Right Front Damage Estimate: $46,988.64 44390 Km Transmission: Auto RunAndDrive Engine: Electric Ottawa Lane: 2 Run: 11 Location: IAA Ottawa Thunder Road ON-SALVAGE Fri, May 15, 09:00 AM EDT Prebid available"
+    "raw_text": "2024 KIA EV6 GT LINE VIN #: KNDC4DLCXR5****** Stock #: 12598362 Front, Right Front Damage Estimate: $46,988.64 44390 Km Transmission: Auto RunAndDrive Engine: Electric Ottawa Lane: 2 Run: 11 Location: IAA Ottawa Thunder Road ON-SALVAGE Fri, May 15, 09:00 AM EDT High Pre-Bid: $10,300.00 Prebid available"
   },
   {
     "search_term": "ev",
@@ -351,7 +351,7 @@
     "location": "Fraser Valley SALVAGE",
     "location_name": "Fraser Valley",
     "branding": "SALVAGE",
-    "high_pre_bid": "16,100.00",
+    "high_pre_bid": "20,100.00",
     "buy_now": "",
     "engine": "Electric Fraser Valley",
     "fuel_type": "",
@@ -361,7 +361,7 @@
     "damage_estimate": "",
     "parse_issue": false,
     "parse_issue_reason": "",
-    "raw_text": "2025 GMC HUMMER EV PICKUP 2X 4WD VIN #: 1GT40BDD6SU****** Stock #: 40067068 Right Rear, Right Side 17306 Km Transmission: Auto Stationary Engine: Electric Fraser Valley Lane: 3 Run: 113 Location: Fraser Valley SALVAGE Mon, May 11, 01:00 PM EDT High Pre-Bid: $16,100.00 Prebid available"
+    "raw_text": "2025 GMC HUMMER EV PICKUP 2X 4WD VIN #: 1GT40BDD6SU****** Stock #: 40067068 Right Rear, Right Side 17306 Km Transmission: Auto Stationary Engine: Electric Fraser Valley Lane: 3 Run: 113 Location: Fraser Valley SALVAGE Mon, May 11, 01:00 PM EDT High Pre-Bid: $20,100.00 Prebid available"
   },
   {
     "search_term": "ev",
@@ -687,7 +687,7 @@
     "location": "IAA Vancouver BC-SALVAGE",
     "location_name": "IAA Vancouver BC",
     "branding": "SALVAGE",
-    "high_pre_bid": "1,300.00",
+    "high_pre_bid": "1,750.00",
     "buy_now": "",
     "engine": "Electric Vancouver",
     "fuel_type": "",
@@ -697,7 +697,7 @@
     "damage_estimate": "69,547.00",
     "parse_issue": false,
     "parse_issue_reason": "",
-    "raw_text": "2024 AUDI Q4 E-TRON 55 VIN #: WA1GUAFZ3RP****** Stock #: 12576478 Front, Left Side Damage Estimate: $69,547.00 18202 Km Transmission: Auto RunAndDrive Engine: Electric Vancouver Lane: 1 Run: 77 Location: IAA Vancouver BC-SALVAGE Wed, May 13, 01:00 PM EDT High Pre-Bid: $1,300.00 Prebid available"
+    "raw_text": "2024 AUDI Q4 E-TRON 55 VIN #: WA1GUAFZ3RP****** Stock #: 12576478 Front, Left Side Damage Estimate: $69,547.00 18202 Km Transmission: Auto RunAndDrive Engine: Electric Vancouver Lane: 1 Run: 77 Location: IAA Vancouver BC-SALVAGE Wed, May 13, 01:00 PM EDT High Pre-Bid: $1,750.00 Prebid available"
   },
   {
     "search_term": "e-tron",
@@ -799,7 +799,7 @@
     "location": "IAA Sudbury ON-IRREPARABLE",
     "location_name": "IAA Sudbury ON",
     "branding": "IRREPARABLE",
-    "high_pre_bid": "3,500.00",
+    "high_pre_bid": "4,000.00",
     "buy_now": "",
     "engine": "Electric Sudbury",
     "fuel_type": "",
@@ -809,7 +809,7 @@
     "damage_estimate": "",
     "parse_issue": false,
     "parse_issue_reason": "",
-    "raw_text": "2025 CADILLAC LYRIQ LUXURY 1 RWD VIN #: 1GYKPNRL8SZ****** Stock #: 12494096 Water, Right Side 21732 Km Transmission: Auto RunAndDrive Engine: Electric Sudbury Lane: 1 Run: 47 Location: IAA Sudbury ON-IRREPARABLE Mon, May 11, 09:00 AM EDT High Pre-Bid: $3,500.00 Prebid available"
+    "raw_text": "2025 CADILLAC LYRIQ LUXURY 1 RWD VIN #: 1GYKPNRL8SZ****** Stock #: 12494096 Water, Right Side 21732 Km Transmission: Auto RunAndDrive Engine: Electric Sudbury Lane: 1 Run: 47 Location: IAA Sudbury ON-IRREPARABLE Mon, May 11, 09:00 AM EDT High Pre-Bid: $4,000.00 Prebid available"
   },
   {
     "search_term": "lyriq",
@@ -911,7 +911,7 @@
     "location": "IAA Montreal West QC-V.G.A",
     "location_name": "IAA Montreal West QC",
     "branding": "V.G.A",
-    "high_pre_bid": "1,950.00",
+    "high_pre_bid": "9,000.00",
     "buy_now": "",
     "engine": "2.5L I-4 DI, DOHC, VVT, turbo, 300HP Montreal West",
     "fuel_type": "",
@@ -921,7 +921,7 @@
     "damage_estimate": "53,459.86",
     "parse_issue": false,
     "parse_issue_reason": "",
-    "raw_text": "2026 GENESIS GV70 ADVANCED 2.5T AWD/ADVANCED TECH PACKAGE 2.5T AWD/PRESTIGE 2.5T AWD VIN #: KMUMADTB5TU****** Stock #: 12598929 Front, Rear Damage Estimate: $53,459.86 136 Km Transmission: Auto Stationary Engine: 2.5L I-4 DI, DOHC, VVT, turbo, 300HP Montreal West Lane: 3 Run: 25 Location: IAA Montreal West QC-V.G.A Tue, May 12, 09:00 AM EDT High Pre-Bid: $1,950.00 Prebid available"
+    "raw_text": "2026 GENESIS GV70 ADVANCED 2.5T AWD/ADVANCED TECH PACKAGE 2.5T AWD/PRESTIGE 2.5T AWD VIN #: KMUMADTB5TU****** Stock #: 12598929 Front, Rear Damage Estimate: $53,459.86 136 Km Transmission: Auto Stationary Engine: 2.5L I-4 DI, DOHC, VVT, turbo, 300HP Montreal West Lane: 3 Run: 25 Location: IAA Montreal West QC-V.G.A Tue, May 12, 09:00 AM EDT High Pre-Bid: $9,000.00 Prebid available"
   },
   {
     "search_term": "gv70",
