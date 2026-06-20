@@ -183,7 +183,7 @@
     "location": "IAA Montreal West QC-V.G.A",
     "location_name": "IAA Montreal West QC",
     "branding": "V.G.A",
-    "high_pre_bid": "",
+    "high_pre_bid": "2,100.00",
     "buy_now": "",
     "engine": "Electric Montreal West",
     "fuel_type": "",
@@ -193,7 +193,7 @@
     "damage_estimate": "20,678.23",
     "parse_issue": false,
     "parse_issue_reason": "",
-    "raw_text": "2021 CHEVROLET BOLT EV LT VIN #: 1G1FY6S00M4****** Stock #: 12629849 Left Rear, Rear Damage Estimate: $20,678.23 60291 Km Transmission: Auto RunAndDrive Engine: Electric Montreal West Lane: 3 Run: 57 Location: IAA Montreal West QC-V.G.A Tue, Jun 23, 09:00 AM EDT Prebid available"
+    "raw_text": "2021 CHEVROLET BOLT EV LT VIN #: 1G1FY6S00M4****** Stock #: 12629849 Left Rear, Rear Damage Estimate: $20,678.23 60291 Km Transmission: Auto RunAndDrive Engine: Electric Montreal West Lane: 3 Run: 57 Location: IAA Montreal West QC-V.G.A Tue, Jun 23, 09:00 AM EDT High Pre-Bid: $2,100.00 Prebid available"
   },
   {
     "search_term": "ev",
